@@ -72,6 +72,8 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
   const [passcode, setPasscode] = useState("");
 
   const [copiedUnified, setCopiedUnified] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedPasscode, setCopiedPasscode] = useState(false);
 
   const [expiryLabel, setExpiryLabel] = useState<string | null>(null);
   const [expiryExpired, setExpiryExpired] = useState(false);
@@ -329,13 +331,34 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
             {expiryLabel ?? "Link active"} · Anyone with the link and passcode can read this. You can delete it at any time.
           </p>
 
-          {/* Single unified link */}
-          <div className="share-section">
-            <p className="share-field-label">Share this secure link</p>
+          {/* Card 1: unified link */}
+          <div className="share-card">
+            <p className="share-card-title">Direct link</p>
+            <p className="share-card-desc">Everything in one link. Recipient opens it and can read immediately.</p>
             <div className="share-url-row">
               <input readOnly className="share-url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
                 {copiedUnified ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
+              </button>
+            </div>
+          </div>
+
+          {/* Card 2: link + passcode separately */}
+          <div className="share-card">
+            <p className="share-card-title">Send separately</p>
+            <p className="share-card-desc">Send the link and passcode via different channels for extra security.</p>
+            <p className="share-field-label">Link</p>
+            <div className="share-url-row" style={{ marginBottom: 10 }}>
+              <input readOnly className="share-url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
+              <button className={`btn-copy${copiedLink ? " copied" : ""}`} onClick={makeCopier(bareUrl, setCopiedLink)}>
+                {copiedLink ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
+              </button>
+            </div>
+            <p className="share-field-label">Passcode</p>
+            <div className="share-url-row">
+              <input readOnly className="share-url-input passcode-display" value={passcode} onClick={(e) => (e.target as HTMLInputElement).select()} />
+              <button className={`btn-copy${copiedPasscode ? " copied" : ""}`} onClick={makeCopier(passcode, setCopiedPasscode)}>
+                {copiedPasscode ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
               </button>
             </div>
           </div>

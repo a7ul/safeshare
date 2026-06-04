@@ -583,6 +583,29 @@ body {
   font-weight: 600;
 }
 
+/* Share cards */
+.share-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: var(--raised);
+}
+
+.share-card-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.share-card-desc {
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
 /* Divider between share sections */
 .share-divider {
   display: flex;
