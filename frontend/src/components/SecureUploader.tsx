@@ -72,8 +72,6 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
   const [passcode, setPasscode] = useState("");
 
   const [copiedUnified, setCopiedUnified] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedPasscode, setCopiedPasscode] = useState(false);
 
   const [expiryLabel, setExpiryLabel] = useState<string | null>(null);
   const [expiryExpired, setExpiryExpired] = useState(false);
@@ -338,29 +336,6 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
               <input readOnly className="share-url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
                 {copiedUnified ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
-              </button>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="share-divider">
-            <span>or send separately</span>
-          </div>
-
-          {/* Link + passcode separately */}
-          <div className="share-section">
-            <p className="share-field-label">Link</p>
-            <div className="share-url-row" style={{ marginBottom: 12 }}>
-              <input readOnly className="share-url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
-              <button className={`btn-copy${copiedLink ? " copied" : ""}`} onClick={makeCopier(bareUrl, setCopiedLink)}>
-                {copiedLink ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
-              </button>
-            </div>
-            <p className="share-field-label">Passcode</p>
-            <div className="share-url-row">
-              <input readOnly className="share-url-input passcode-display" value={passcode} onClick={(e) => (e.target as HTMLInputElement).select()} />
-              <button className={`btn-copy${copiedPasscode ? " copied" : ""}`} onClick={makeCopier(passcode, setCopiedPasscode)}>
-                {copiedPasscode ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
               </button>
             </div>
           </div>
