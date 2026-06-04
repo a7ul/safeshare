@@ -52,9 +52,9 @@ body {
   background: var(--bone);
   border: 1px solid var(--pebble);
   border-radius: var(--r-lg);
-  padding: 40px 40px 36px;
+  padding: 48px 44px 44px;
   width: 100%;
-  max-width: 540px;
+  max-width: 480px;
   box-shadow:
     0 1px 2px rgba(30, 21, 14, 0.05),
     0 4px 12px rgba(30, 21, 14, 0.06),
@@ -67,7 +67,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .brand-logo { height: 22px; width: auto; }
@@ -94,7 +94,7 @@ body {
   font-size: 0.8125rem;
   color: var(--flint);
   line-height: 1.55;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
 /* Eyebrow labels */
@@ -115,7 +115,7 @@ body {
   border: 1px solid var(--pebble);
   border-radius: var(--r-sm);
   padding: 3px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   gap: 2px;
 }
 
@@ -145,12 +145,12 @@ body {
 .drop-zone {
   border: 1.5px dashed var(--pebble);
   border-radius: var(--r-sm);
-  padding: 36px 20px;
+  padding: 40px 20px;
   text-align: center;
   cursor: pointer;
   background: var(--cream);
   transition: border-color 0.14s, background 0.14s;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   user-select: none;
 }
 
@@ -348,7 +348,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 16px 0 8px;
+  margin: 4px 0 16px;
   flex-wrap: wrap;
 }
 
@@ -397,7 +397,7 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 13px 16px;
+  padding: 14px 16px;
   background: var(--espresso);
   color: var(--bone);
   border: none;
@@ -407,7 +407,7 @@ body {
   font-family: inherit;
   cursor: pointer;
   transition: background 0.12s, transform 0.08s;
-  margin-top: 8px;
+  margin-top: 4px;
   letter-spacing: -0.01em;
 }
 
