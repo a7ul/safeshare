@@ -407,26 +407,58 @@ body {
   color: var(--bone);
 }
 
-/* Share sections (result state) */
+/* Done / result state */
 
-.share-section {
-  width: 100%;
+.done-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px;
+  width: 100%;
 }
 
-.share-section-label {
-  font-size: var(--text-2xs);
+.done-heading {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.share-panel {
+  width: 100%;
+  background: var(--cream);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.share-panel-title {
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--ash);
+  color: var(--flint);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+}
+
+.share-footer {
+  width: 100%;
+  background: var(--ink);
+  color: var(--bone);
+  border-radius: var(--r-sm);
+  padding: 11px 16px;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.share-footer.expired {
+  background: var(--destructive);
 }
 
 .passcode-display {
   font-family: "SF Mono", ui-monospace, "Cascadia Mono", monospace;
-  font-size: 0.8125rem !important;
+  font-size: var(--text-sm) !important;
   letter-spacing: 0.08em;
   color: var(--ink) !important;
   font-weight: 600;

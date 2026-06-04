@@ -9,6 +9,7 @@ import {
   TriangleAlert,
   Upload,
   X,
+  // TriangleAlert kept for error-box
 } from "lucide-react";
 import {
   b64urlEncode,
@@ -314,15 +315,12 @@ export function SecureUploader() {
       )}
 
       {status === "done" && (
-        <div className="status-block">
-          <div className="status-icon success"><CheckCheck size={17} /></div>
-          <h2 className="section-heading">
-            {uploadStates.length > 1 ? `${uploadStates.length} files ready to share` : "Ready to share"}
-          </h2>
+        <div className="done-block">
+          <h2 className="done-heading">Ready to share</h2>
 
-          {/* Option 1: all-in-one link */}
-          <div className="share-section">
-            <span className="share-section-label">Single link</span>
+          {/* Panel 1: single unified link */}
+          <div className="share-panel">
+            <div className="share-panel-title">Share this</div>
             <div className="url-row">
               <input readOnly className="url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
@@ -331,9 +329,9 @@ export function SecureUploader() {
             </div>
           </div>
 
-          {/* Option 2: link + passcode separately */}
-          <div className="share-section">
-            <span className="share-section-label">Or send separately</span>
+          {/* Panel 2: link + passcode separately */}
+          <div className="share-panel">
+            <div className="share-panel-title">Or share separately</div>
             <div className="url-row" style={{ marginBottom: 6 }}>
               <input readOnly className="url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedLink ? " copied" : ""}`} onClick={makeCopier(bareUrl, setCopiedLink)}>
@@ -348,18 +346,11 @@ export function SecureUploader() {
             </div>
           </div>
 
-          {expiryLabel && (
-            <div className={`expiry-badge${expiryExpired ? " expired" : ""}`}>
-              <Clock size={11} />
-              {expiryLabel}
-            </div>
-          )}
-          <div className="notice">
-            <TriangleAlert size={12} />
-            <span>
-              For maximum privacy, send the link and passcode through different channels. Anyone with both can read the file{uploadStates.length > 1 ? "s" : ""}.
-            </span>
+          {/* Footer strip: expiry + privacy note */}
+          <div className={`share-footer${expiryExpired ? " expired" : ""}`}>
+            <span>{expiryLabel ?? "Link active"} · Anyone with the link and code can read the file{uploadStates.length > 1 ? "s" : ""}.</span>
           </div>
+
           <button className="btn-ghost" onClick={reset}>Share another</button>
         </div>
       )}
