@@ -20,17 +20,17 @@ const STEPS: Step[] = [
   {
     icon: <Lock size={16} />,
     title: "It's locked on your device",
-    body: "The moment you pick a file or type a note, your browser scrambles it into unreadable ciphertext. This happens on your own computer — before anything is sent anywhere.",
+    body: "The moment you pick a file or type a note, your browser scrambles it into unreadable ciphertext. This happens on your own computer, before anything is sent anywhere.",
   },
   {
     icon: <KeyRound size={16} />,
     title: "The key lives inside your link",
-    body: "Unscrambling it needs a secret key. That key is tucked into the end of your share link (after the \"#\"). Browsers are built to never send that part to any website — so it stays between you and whoever you hand the link to.",
+    body: "Unscrambling it needs a secret key. That key is tucked into the end of your share link (after the \"#\"). Browsers are built to never send that part to any website, so it stays between you and whoever you hand the link to.",
   },
   {
     icon: <Server size={16} />,
     title: "Our server only holds a sealed box",
-    body: "We receive and store just the encrypted bytes. We never get the key, so we couldn't read your file even if we wanted to — or if someone compelled us to hand it over.",
+    body: "We receive and store just the encrypted bytes. We never get the key, so we couldn't read your file even if we wanted to, or if someone compelled us to hand it over.",
   },
   {
     icon: <EyeOff size={16} />,
@@ -40,12 +40,12 @@ const STEPS: Step[] = [
   {
     icon: <Clock size={16} />,
     title: "It doesn't stick around",
-    body: "Every share has an expiry you choose — anywhere from 1 hour to 30 days. Once that time is up, the server deletes it automatically.",
+    body: "Every share has an expiry you choose, anywhere from 1 hour to 30 days. Once that time is up, the server deletes it automatically.",
   },
   {
     icon: <Trash2 size={16} />,
     title: "You can delete it anytime",
-    body: "Changed your mind? Anyone holding the link can permanently delete the files before they expire — one click on the download page, and the encrypted payload is gone from our server for good.",
+    body: "Changed your mind? Anyone holding the link can permanently delete the files before they expire. One click on the download page and the encrypted payload is gone from our server for good.",
   },
 ];
 
@@ -60,7 +60,7 @@ export function HowItWorksPage() {
         <span className="section-label">Security</span>
         <h1 className="page-heading">How it works</h1>
         <p className="page-subtitle">
-          The plain-English version — no technical knowledge needed. Here's what happens when you share something, and why even we can never see it.
+          The plain-English version. No technical knowledge needed. Here's what happens when you share something, and why even we can never see it.
         </p>
 
         <div className="how-steps">
@@ -78,7 +78,7 @@ export function HowItWorksPage() {
         <div className="how-summary">
           <div className="how-summary-head">
             <ShieldCheck size={15} />
-            <span>What the server can — and can't — see</span>
+            <span>What the server can and cannot see</span>
           </div>
           <div className="how-summary-cols">
             <div>

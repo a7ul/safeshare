@@ -281,7 +281,7 @@ export function DownloadPage() {
               <ShieldCheck size={15} className="trust-badge-icon" />
               <div className="trust-badge-body">
                 <strong>Privately shared with you</strong>
-                <span>This share is passcode-protected. Enter the passcode the sender gave you — checked entirely in your browser.</span>
+                <span>This share is passcode-protected. Enter the passcode the sender gave you. Checked entirely in your browser.</span>
               </div>
             </div>
             <span className="section-label">Enter passcode</span>
@@ -419,7 +419,7 @@ export function DownloadPage() {
                 <div className="delete-confirm">
                   <span className="delete-confirm-text">
                     Delete permanently? This removes {entries.length === 1 ? "the file" : `all ${entries.length} files`} from
-                    the server for everyone — this can't be undone.
+                    the server for everyone. This can't be undone.
                   </span>
                   <div className="delete-confirm-actions">
                     <button className="btn-ghost" onClick={() => setDeleteStatus("idle")}>Cancel</button>

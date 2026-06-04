@@ -10,10 +10,9 @@ export function UploadPage() {
     <div className="page">
       <div className="card">
         <BrandRow logoUrl={logoUrl} title={title} />
-        <span className="section-label">Secure sharing</span>
         <h1 className="page-heading">Share files, notes<br />and secrets securely.</h1>
         <p className="page-subtitle">
-          End-to-end encrypted in your browser. The server only ever stores ciphertext — it cannot read what you send.
+          End-to-end encrypted in your browser. The server only ever stores ciphertext. It cannot read what you send.
         </p>
         <SecureUploader />
         <div className="how-link-row">

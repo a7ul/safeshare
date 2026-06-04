@@ -37,10 +37,10 @@
   --err-br: #F2C4B6;
 
   /* Radius */
-  --r-xs: 4px;
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 6px;
+  --r-lg: 8px;
 
   /* Typography */
   --text-2xs: 0.6875rem;
@@ -86,10 +86,7 @@ body {
   padding: 44px 44px 40px;
   width: 100%;
   max-width: 520px;
-  box-shadow:
-    0 1px 3px rgba(20,12,6,.04),
-    0 6px 20px rgba(20,12,6,.06),
-    0 24px 60px rgba(20,12,6,.04);
+  box-shadow: 0 2px 12px rgba(20,12,6,.07);
 }
 
 /* ── Brand row ───────────────────────────────────────────────────── */
@@ -177,8 +174,8 @@ body {
 /* ── Drop zone ───────────────────────────────────────────────────── */
 
 .drop-zone {
-  border: 1.5px dashed var(--border-strong);
-  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
@@ -507,7 +504,7 @@ body {
 .progress-track { width: 100%; height: 2px; background: var(--overlay); border-radius: 99px; overflow: hidden; }
 .progress-bar { height: 100%; background: var(--warm); border-radius: 99px; transition: width 0.3s ease; }
 
-.status-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.status-icon { width: 44px; height: 44px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
 .status-icon.success { background: var(--ok-bg); color: var(--ok-fg); border: 1px solid var(--ok-br); }
 .status-icon.error   { background: var(--err-bg); color: var(--err-fg); border: 1px solid var(--err-br); }
 
@@ -528,9 +525,9 @@ body {
 }
 
 .share-heading-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-xs);
   background: var(--ok-bg);
   border: 1px solid var(--ok-br);
   color: var(--ok-fg);
@@ -701,7 +698,7 @@ body {
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  border-radius: 50%;
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   justify-content: center;
