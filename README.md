@@ -27,7 +27,7 @@
 **macOS & Linux, one command:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/a7ul/safeshare/main/run.sh | sh
+curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/run.sh | sh
 ```
 
 That script detects your platform, downloads the right pre-built binary from the latest release, and starts the server. When it's running you'll see:
