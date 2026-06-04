@@ -28,6 +28,7 @@ recipient reads URL hash -> fetch(ciphertext) -----> return bytes
 - Encryption and decryption run entirely in `frontend/src/lib/crypto.ts` using the browser Web Crypto API. The server has zero crypto code.
 - Files upload via the [TUS resumable protocol](https://tus.io) — large files survive network interruptions.
 - Multiple files are bundled in one link via a base64-encoded manifest in the URL hash.
+- Optionally, the manifest's keys are wrapped behind a passcode (shared separately, or embedded in a unified link) — see [Security](#security).
 - Expiry is chosen per share (1h / 24h / 7d / 30d) and embedded in the manifest, so the recipient sees it immediately without a server round-trip.
 
 ---
@@ -35,10 +36,12 @@ recipient reads URL hash -> fetch(ciphertext) -----> return bytes
 ## Features
 
 - AES-256-GCM browser encryption — server never sees plaintext
-- TUS resumable uploads up to 500 MB per file
+- TUS resumable uploads up to `MAX_UPLOAD_MB` (500 MB default) per file
 - Multi-file bundles in one link
+- Passcode protection — wrap the link's key behind a passcode (shared separately) or bake it into a single unified link
 - Secure notes — text encrypted before leaving the browser
 - Per-share expiry: 1 hour, 24 hours, 7 days, 30 days
+- Delete on demand — anyone with the link can permanently remove the files before they expire
 - Server-enforced TTL capped at `LINK_TTL_DAYS`
 - Optional company logo and name via environment variables
 - Single self-contained binary — no database, no cache, no queue
@@ -96,6 +99,7 @@ Cross-compile for other platforms:
 ```bash
 deno compile \
   --allow-read --allow-write --allow-net --allow-env \
+  --include frontend/dist \
   --target x86_64-unknown-linux-gnu \
   --output secureshare-linux-x64 \
   main.ts
@@ -113,7 +117,8 @@ All configuration is via environment variables. Every variable has a sane defaul
 |---|---|---|
 | `PORT` | `8000` | HTTP port to listen on |
 | `STORAGE_DIR` | `/tmp/e2eshare` | Directory where encrypted uploads are stored |
-| `LINK_TTL_DAYS` | `30` | Maximum days before a share link expires (server-side cap) |
+| `LINK_TTL_DAYS` | `30` | Maximum share link lifetime in days — the cap the server enforces |
+| `MAX_UPLOAD_MB` | `500` | Maximum upload size per file, in MB |
 | `LOGO_URL` | _(blank)_ | URL of a company logo shown in the UI header |
 | `TITLE` | _(blank)_ | Company name shown next to the logo |
 
@@ -204,6 +209,7 @@ secureshare/
     src/
       pages/
         UploadPage.tsx         / route
+        HowItWorksPage.tsx     /how-it-works route
         DownloadPage.tsx       /d/:id route
       components/
         SecureUploader.tsx     Upload UI with expiry picker
@@ -273,11 +279,14 @@ The release workflow builds cross-platform binaries and creates a GitHub release
 
 ## Security
 
-- **The server never sees plaintext.** All encryption runs in the browser via the Web Crypto API. The server has no crypto code.
+- **The client does encryption and keys; the server does the time limit.** All cryptography — encrypting files, deriving passcode keys, holding the decryption keys — happens in the browser. The server has no crypto code. The **only** policy the server enforces on a share is its expiry; everything else about access lives in the link.
+- **The server never sees plaintext.** All encryption runs in the browser via the Web Crypto API.
 - **The key is in the URL fragment.** Fragments are stripped by browsers before sending HTTP requests and are not written to server logs or CDN access logs. However, they are visible in browser history. Share links over trusted channels only.
-- **No authentication.** Anyone with a valid link can decrypt the file. Add rate limiting at the ingress layer for public deployments.
-- **Expiry is enforced server-side.** The server returns HTTP 410 for expired links. The client-side expiry in the manifest is for display only.
-- **Uploads are capped at 500 MB per file**, enforced in the TUS handler.
+- **Passcode protection (optional).** The random file key can be wrapped (encrypted) with a key derived from a passcode via PBKDF2 (210k iterations, SHA-256). The link then carries only the wrapped key plus a salt — useless without the passcode. *Passcode* mode keeps the passcode out of the link (share it separately); *unified link* mode embeds it in the fragment for convenience. The server never sees the passcode.
+- **No authentication.** Anyone with a valid link (and passcode, if set) can decrypt the file. Add rate limiting at the ingress layer for public deployments.
+- **Deletion is link-scoped.** `DELETE /api/files/:id` removes a share. Knowing the id is the credential — exactly as it is for download — so anyone holding the link can delete it, and no one without it can. Deletion is permanent and idempotent (a missing id returns 404).
+- **Every share always has a time limit, enforced server-side.** A share can't be created without an expiry — a missing, malformed, or past client value falls back to the `LINK_TTL_DAYS` maximum. The server returns HTTP 410 for expired links. The client-side expiry in the manifest is for display only.
+- **Uploads are capped at `MAX_UPLOAD_MB` (500 MB default) per file**, enforced in the TUS handler.
 
 ---
 

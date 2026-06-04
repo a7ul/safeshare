@@ -8,7 +8,12 @@ import {
 } from "./storage.ts";
 
 const TUS_VERSION = "1.0.0";
-const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
+
+// Max upload size, configurable via MAX_UPLOAD_MB (default 500 MB).
+const MAX_UPLOAD_MB = parseInt(Deno.env.get("MAX_UPLOAD_MB") ?? "500", 10);
+const MAX_SIZE =
+  (Number.isFinite(MAX_UPLOAD_MB) && MAX_UPLOAD_MB > 0 ? MAX_UPLOAD_MB : 500) *
+  1024 * 1024;
 
 function parseTusMetadata(header: string): Record<string, string> {
   const result: Record<string, string> = {};

@@ -34,13 +34,17 @@ export async function createUpload(
   const now = new Date();
   const maxExpiry = new Date(now.getTime() + MAX_TTL_DAYS * 24 * 60 * 60 * 1000);
 
-  let expiresAt: Date;
+  // Every upload ALWAYS gets a time limit — this is the one and only thing the
+  // server enforces. Honour a valid client-requested expiry, but clamp it to the
+  // server maximum (LINK_TTL_DAYS). Anything missing, malformed, or in the past
+  // falls back to the maximum, so a share can never be created without a TTL.
+  let expiresAt = maxExpiry;
   if (requestedExpiresAt) {
     const requested = new Date(requestedExpiresAt);
-    // Use client-provided expiry, clamped to the server maximum
-    expiresAt = requested > maxExpiry ? maxExpiry : requested < now ? maxExpiry : requested;
-  } else {
-    expiresAt = maxExpiry;
+    const valid = !isNaN(requested.getTime());
+    if (valid && requested > now && requested < maxExpiry) {
+      expiresAt = requested;
+    }
   }
 
   const info: UploadInfo = {
@@ -82,6 +86,16 @@ export async function appendChunk(
     );
   }
   return newOffset;
+}
+
+export async function deleteUpload(id: string): Promise<boolean> {
+  try {
+    await Deno.remove(uploadDir(id), { recursive: true });
+    return true;
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) return false;
+    throw err;
+  }
 }
 
 export async function openDataStream(

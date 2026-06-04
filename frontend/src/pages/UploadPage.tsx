@@ -1,4 +1,4 @@
-import { Lock } from "lucide-react";
+import { HelpCircle, Lock } from "lucide-react";
 import { SecureUploader } from "../components/SecureUploader";
 import { useConfig } from "../hooks/useConfig";
 
@@ -17,6 +17,11 @@ export function UploadPage() {
         <h1 className="card-heading">Share files, notes and secrets securely.</h1>
         <p className="card-subtitle">End-to-end encrypted between your browser and the receiver. No information is visible to the server.</p>
         <SecureUploader />
+        <div className="how-link-row">
+          <a href="/how-it-works" className="text-link">
+            <HelpCircle size={12} /> How it works
+          </a>
+        </div>
       </div>
     </div>
   );

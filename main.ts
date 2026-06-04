@@ -2,6 +2,7 @@ import { Hono } from "npm:hono@4";
 import { cors } from "npm:hono@4/cors";
 import { createTusRouter } from "./src/tus.ts";
 import {
+  deleteUpload,
   ensureStorageDir,
   getUploadInfo,
   isComplete,
@@ -84,8 +85,24 @@ app.get("/api/files/:id", async (c) => {
   });
 });
 
-// Static file middleware for built frontend
-const DIST = "./frontend/dist";
+// Delete endpoint — anyone with the id (i.e. anyone holding the link) can
+// permanently delete the share. This matches the access model of download:
+// the unguessable id IS the credential. Idempotent — deleting twice is fine.
+app.delete("/api/files/:id", async (c) => {
+  const id = c.req.param("id");
+  if (!isValidId(id)) return c.json({ error: "Not Found" }, 404);
+
+  const existed = await deleteUpload(id);
+  if (!existed) return c.json({ error: "Not Found" }, 404);
+
+  return c.body(null, 204);
+});
+
+// Static file middleware for built frontend.
+// Resolve relative to this module (not the cwd) so the directory is found both
+// when running via `deno run` and when embedded in a compiled single binary
+// (compiled with `--include frontend/dist`).
+const DIST = `${import.meta.dirname ?? "."}/frontend/dist`;
 const MIME: Record<string, string> = {
   html: "text/html; charset=utf-8",
   js: "text/javascript",

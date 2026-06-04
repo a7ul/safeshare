@@ -54,6 +54,7 @@ jobs:
         run: |
           deno compile \
             --allow-read --allow-write --allow-net --allow-env \
+            --include frontend/dist \
             --target ${{ matrix.target }} \
             --output ${{ matrix.output }} \
             main.ts
@@ -118,7 +119,8 @@ jobs:
             |---|---|---|
             | `PORT` | `8000` | HTTP listen port |
             | `STORAGE_DIR` | `/tmp/e2eshare` | Upload storage directory |
-            | `LINK_TTL_DAYS` | `30` | Maximum link lifetime in days |
+            | `LINK_TTL_DAYS` | `30` | Maximum share link lifetime in days (server-enforced) |
+            | `MAX_UPLOAD_MB` | `500` | Maximum upload size per file, in MB |
             | `LOGO_URL` | _(blank)_ | Company logo URL |
             | `TITLE` | _(blank)_ | Company name shown in the UI |
 

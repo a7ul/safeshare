@@ -137,3 +137,34 @@ test.describe("Download page — manifest loading", () => {
     await expect(page.getByText(/Expires in/i)).toBeVisible({ timeout: 5000 });
   });
 });
+
+test.describe("Download page — delete", () => {
+  const fakeManifest = () =>
+    btoa(JSON.stringify([
+      { id: "11111111-1111-4111-8111-111111111111", key: "fakekey", name: "test.txt", size: 50, mime: "text/plain" },
+    ])).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+
+  test("shows a delete control once the link is ready", async ({ page }) => {
+    await page.goto(`/d/m#${fakeManifest()}`);
+    await expect(page.getByRole("button", { name: /Delete this link/i })).toBeVisible({ timeout: 5000 });
+  });
+
+  test("asks for confirmation before deleting and can be cancelled", async ({ page }) => {
+    await page.goto(`/d/m#${fakeManifest()}`);
+
+    await page.getByRole("button", { name: /Delete this link/i }).click();
+    await expect(page.getByText(/Delete permanently\?/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Cancel$/ }).click();
+    await expect(page.getByRole("button", { name: /Delete this link/i })).toBeVisible();
+  });
+
+  test("confirming deletion shows the deleted state", async ({ page }) => {
+    await page.goto(`/d/m#${fakeManifest()}`);
+
+    await page.getByRole("button", { name: /Delete this link/i }).click();
+    await page.getByRole("button", { name: /Delete forever/i }).click();
+
+    await expect(page.getByRole("heading", { name: "Link deleted." })).toBeVisible({ timeout: 5000 });
+  });
+});
