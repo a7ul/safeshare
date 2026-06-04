@@ -9,6 +9,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { BrandRow } from "./BrandRow";
 import {
   b64urlEncode,
   derivePasscodeKey,
@@ -51,7 +52,14 @@ function expiryToDate(opt: ExpiryOption): Date {
   return new Date(Date.now() + ms[opt]);
 }
 
-export function SecureUploader() {
+interface SecureUploaderProps {
+  logoUrl?: string | null;
+  title?: string | null;
+  onDone?: () => void;
+  onReset?: () => void;
+}
+
+export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUploaderProps = {}) {
   const [mode, setMode] = useState<Mode>("file");
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
@@ -172,6 +180,7 @@ export function SecureUploader() {
       setExpiryExpired(expired);
 
       setStatus("done");
+      onDone?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
@@ -198,6 +207,7 @@ export function SecureUploader() {
     setError("");
     if (fileRef.current) fileRef.current.value = "";
     if (addFileRef.current) addFileRef.current.value = "";
+    onReset?.();
   };
 
   const ready = mode === "file" ? files.length > 0 : note.trim().length > 0;
@@ -211,7 +221,7 @@ export function SecureUploader() {
           {/* Mode tabs */}
           <div className="mode-tabs">
             <button className={`mode-tab${mode === "file" ? " active" : ""}`} onClick={() => setMode("file")}>Files</button>
-            <button className={`mode-tab${mode === "note" ? " active" : ""}`} onClick={() => setMode("note")}>Note</button>
+            <button className={`mode-tab${mode === "note" ? " active" : ""}`} onClick={() => setMode("note")}>Note / Secret</button>
           </div>
 
           {/* Content area */}
@@ -269,6 +279,7 @@ export function SecureUploader() {
           {/* Expiry */}
           <div className="expiry-section">
             <span className="section-label">Expires after</span>
+
             <div className="expiry-options">
               {(Object.keys(EXPIRY_LABELS) as ExpiryOption[]).map((opt) => (
                 <button key={opt} className={`expiry-opt${expiry === opt ? " active" : ""}`} onClick={() => setExpiry(opt)}>
@@ -314,17 +325,16 @@ export function SecureUploader() {
       {/* ── Done ── */}
       {status === "done" && (
         <div className="share-block">
-          {/* Heading */}
-          <div className="share-heading">
-            <div className="share-heading-icon">
-              <CheckCheck size={14} />
-            </div>
-            <h2>Ready to share</h2>
-          </div>
+          {/* Full header replaces upload page header */}
+          <BrandRow logoUrl={logoUrl ?? null} title={title ?? null} />
+          <h1 className="page-heading">Ready to share.</h1>
+          <p className="page-subtitle">
+            {expiryLabel ?? "Link active"} · Anyone with the link and passcode can read this. You can delete it at any time.
+          </p>
 
-          {/* Section 1: single unified link */}
+          {/* Single unified link */}
           <div className="share-section">
-            <span className="section-label">Share this link</span>
+            <p className="share-field-label">Share this secure link</p>
             <div className="share-url-row">
               <input readOnly className="share-url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
@@ -335,19 +345,19 @@ export function SecureUploader() {
 
           {/* Divider */}
           <div className="share-divider">
-            <span>Or send separately</span>
+            <span>or send separately</span>
           </div>
 
-          {/* Section 2: link + passcode separately */}
+          {/* Link + passcode separately */}
           <div className="share-section">
-            <span className="section-label" style={{ marginBottom: 8 }}>Link</span>
-            <div className="share-url-row" style={{ marginBottom: 10 }}>
+            <p className="share-field-label">Link</p>
+            <div className="share-url-row" style={{ marginBottom: 12 }}>
               <input readOnly className="share-url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedLink ? " copied" : ""}`} onClick={makeCopier(bareUrl, setCopiedLink)}>
                 {copiedLink ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
               </button>
             </div>
-            <span className="section-label" style={{ marginBottom: 8 }}>Passcode</span>
+            <p className="share-field-label">Passcode</p>
             <div className="share-url-row">
               <input readOnly className="share-url-input passcode-display" value={passcode} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedPasscode ? " copied" : ""}`} onClick={makeCopier(passcode, setCopiedPasscode)}>
@@ -356,12 +366,7 @@ export function SecureUploader() {
             </div>
           </div>
 
-          {/* Footer strip */}
-          <div className={`share-footer${expiryExpired ? " expired" : ""}`} style={{ marginTop: 8 }}>
-            <strong>{expiryLabel ?? "Link active"}</strong> · Anyone with the link and passcode can read {uploadStates.length > 1 ? "these files" : "this"}.
-          </div>
-
-          <div className="share-actions">
+          <div className="share-actions" style={{ marginTop: 8 }}>
             <button className="btn-ghost" onClick={reset}>Share another</button>
           </div>
         </div>
