@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>End-to-end encrypted file and note sharing. The server only ever stores ciphertext.</strong>
+  Self hosted end to end encrypted file, secrets and note sharing.<br>
+  No database, single binary, extremely easy to run.
 </p>
 
 <p align="center">
@@ -17,6 +18,19 @@
   <a href="#how-it-works">How It Works</a> ·
   <a href="#deployment-recipes">Deploy</a> ·
   <a href="#security">Security</a>
+</p>
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/upload.png" width="420" alt="Upload screen — drop files or pick an expiry">
+  <img src="docs/screenshots/note-tab.png" width="420" alt="Note tab — type a secret note">
+</p>
+<p align="center">
+  <img src="docs/screenshots/share-result.png" width="420" alt="Share result — unified link or link + passcode separately">
+  <img src="docs/screenshots/how-it-works.png" width="420" alt="How it works page">
 </p>
 
 ---
