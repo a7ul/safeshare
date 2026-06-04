@@ -1,0 +1,707 @@
+/* ─── Filed Design Tokens ─────────────────────────── */
+:root {
+  /* Neutral scale — warm brown only */
+  --bone:     #f9f7f5;
+  --cream:    #f4ecde;
+  --stone:    #ebe3d5;
+  --pebble:   #d4cabc;
+  --ash:      #a89c8e;
+  --flint:    #736759;
+  --charcoal: #4a3c2e;
+  --ink:      #1e150e;
+
+  /* Espresso — brand */
+  --espresso-light: #baa698;
+  --espresso:       #704b30;
+  --espresso-dark:  #5d3c24;
+
+  /* Status */
+  --destructive: #ba381b;
+  --success-bg:  #e9f6e9;
+  --success-fg:  #2d6a2d;
+  --success-br:  #c3ddc3;
+
+  /* Radius — per Filed spec */
+  --r-xs: 2px;   /* inputs, buttons */
+  --r-sm: 4px;   /* rows, chips */
+  --r-md: 6px;   /* cards, panels */
+  --r-lg: 8px;   /* main card (prototype shows 8-14px) */
+
+  font-family: "Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Page layout ─────────────────────────────────── */
+/* User requested: cream bg, bone/white card */
+
+body {
+  background: #f7f4f0;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+/* ─── Card — bone surface, Pebble border ─────────── */
+
+.card {
+  background: var(--bone);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-lg);
+  padding: 36px 36px 32px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 1px 3px rgba(30, 21, 14, 0.06), 0 4px 16px rgba(30, 21, 14, 0.04);
+}
+
+/* ─── Brand / header ──────────────────────────────── */
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 3px;
+}
+
+.brand-logo { height: 24px; width: auto; }
+.brand-icon { color: var(--espresso); flex-shrink: 0; }
+
+/* Freight Display Pro heading — the Filed signature */
+.card-heading {
+  font-family: "Freight Display Pro", "Playfair Display", Georgia, serif;
+  font-size: 1.625rem;
+  font-weight: 300;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 0.75rem;
+  color: var(--flint);
+  margin-top: 2px;
+  margin-bottom: 24px;
+  line-height: 1.45;
+}
+
+/* ─── Eyebrow labels ──────────────────────────────── */
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ash);
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ─── Mode toggle ─────────────────────────────────── */
+
+.mode-toggle {
+  display: flex;
+  background: var(--stone);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  margin-bottom: 12px;
+  gap: 2px;
+}
+
+.mode-toggle button {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: calc(var(--r-sm) - 1px);
+  background: transparent;
+  color: var(--flint);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.mode-toggle button.active {
+  background: var(--bone);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(30, 21, 14, 0.07);
+}
+
+/* ─── Drop zone — cream surface (distinct from bone card) */
+
+.drop-zone {
+  border: 1.5px dashed var(--pebble);
+  border-radius: var(--r-sm);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--cream);
+  transition: border-color 0.14s, background 0.14s;
+  margin-bottom: 10px;
+  user-select: none;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: var(--espresso);
+  background: var(--stone);
+}
+
+.drop-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--flint);
+  font-size: 0.8125rem;
+}
+
+.drop-hint-icon { color: var(--ash); margin-bottom: 2px; }
+
+.drop-hint strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ─── File list rows (Binder-style) ──────────────── */
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.file-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bone);
+  border-bottom: 1px solid var(--stone);
+  transition: background 0.08s;
+  min-height: 44px;
+}
+
+.file-list-item:last-child { border-bottom: none; }
+.file-list-item:hover { background: var(--stone); }
+
+.file-list-item .row-icon { color: var(--espresso); flex-shrink: 0; margin-top: 2px; }
+
+.file-list-item .row-body { flex: 1; min-width: 0; }
+
+.file-list-item .fname {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-list-item .fsize {
+  font-size: 0.6875rem;
+  color: var(--flint);
+  margin-top: 1px;
+}
+
+.file-list-item .remove-btn {
+  color: var(--ash);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-xs);
+  transition: color 0.1s;
+  flex-shrink: 0;
+}
+
+.file-list-item .remove-btn:hover { color: var(--destructive); }
+
+.add-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 7px 12px;
+  background: transparent;
+  border: 1px dashed var(--pebble);
+  border-radius: var(--r-xs);
+  color: var(--flint);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  margin-bottom: 10px;
+}
+
+.add-more-btn:hover { border-color: var(--espresso); color: var(--ink); }
+
+/* ─── Upload progress list ────────────────────────── */
+
+.upload-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+.upload-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--bone);
+  border-bottom: 1px solid var(--stone);
+  min-height: 40px;
+}
+
+.upload-list-item:last-child { border-bottom: none; }
+
+.upload-list-item .fname {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.upload-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.upload-status-dot.pending { background: var(--pebble); }
+.upload-status-dot.active  { background: var(--espresso); animation: pulse 0.9s ease-in-out infinite; }
+.upload-status-dot.done    { background: var(--success-fg); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ─── Note textarea ───────────────────────────────── */
+
+.note-input {
+  width: 100%;
+  background: var(--cream);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  padding: 11px 13px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.note-input::placeholder { color: var(--ash); }
+
+.note-input:focus {
+  border-color: var(--espresso);
+  box-shadow: 0 0 0 3px rgba(112, 75, 48, 0.07);
+}
+
+/* ─── Primary CTA button ──────────────────────────── */
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 16px;
+  background: var(--espresso);
+  color: var(--bone);
+  border: none;
+  border-radius: var(--r-xs);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-top: 6px;
+  letter-spacing: -0.005em;
+}
+
+.btn-primary:hover:not(:disabled) { background: var(--espresso-dark); }
+
+.btn-primary:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ─── Secondary / ghost buttons ──────────────────── */
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.btn-outline:hover { border-color: var(--ash); background: var(--stone); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  background: transparent;
+  color: var(--flint);
+  border: none;
+  border-radius: var(--r-xs);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.1s, background 0.1s;
+}
+
+.btn-ghost:hover { color: var(--ink); background: var(--stone); }
+
+.btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  background: var(--stone);
+  color: var(--ink);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+  flex-shrink: 0;
+}
+
+.btn-copy:hover { background: var(--pebble); }
+
+.btn-copy.copied {
+  background: var(--success-bg);
+  border-color: var(--success-br);
+  color: var(--success-fg);
+}
+
+.btn-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  background: var(--stone);
+  color: var(--flint);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+
+.btn-dl:hover { background: var(--pebble); color: var(--ink); }
+.btn-dl:disabled { opacity: 0.45; cursor: default; }
+.btn-dl.done { background: var(--success-bg); border-color: var(--success-br); color: var(--success-fg); }
+
+/* ─── Status block (centered) ────────────────────── */
+
+.status-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.status-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.status-hint {
+  font-size: 0.75rem;
+  color: var(--flint);
+  line-height: 1.5;
+  max-width: 360px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 2px;
+  background: var(--stone);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--espresso);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.status-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon.success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+  border: 1px solid var(--success-br);
+}
+
+.status-icon.error {
+  background: #fce8e3;
+  color: var(--destructive);
+  border: 1px solid #f4c4b8;
+}
+
+/* ─── Share URL row ───────────────────────────────── */
+
+.url-row {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.url-input {
+  flex: 1;
+  background: var(--cream);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  padding: 7px 11px;
+  color: var(--flint);
+  font-size: 0.6875rem;
+  font-family: "SF Mono", ui-monospace, "Cascadia Mono", monospace;
+  outline: none;
+  min-width: 0;
+}
+
+/* ─── Expiry badge ────────────────────────────────── */
+
+.expiry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  color: var(--flint);
+}
+
+.expiry-badge.expired { color: var(--destructive); }
+
+/* ─── Notice / alerts ─────────────────────────────── */
+
+.notice {
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--flint);
+  background: var(--stone);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+  padding: 9px 13px;
+  text-align: left;
+  line-height: 1.5;
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+}
+
+.notice svg { flex-shrink: 0; margin-top: 1px; color: var(--ash); }
+
+.error-box {
+  width: 100%;
+  padding: 9px 13px;
+  background: #fce8e3;
+  border: 1px solid #f4c4b8;
+  border-radius: var(--r-sm);
+  color: var(--destructive);
+  font-size: 0.8125rem;
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.error-box svg { flex-shrink: 0; margin-top: 2px; }
+
+/* ─── Download file list (Binder-row style) ────────── */
+
+.download-file-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+.download-file-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bone);
+  border-bottom: 1px solid var(--stone);
+  min-height: 48px;
+  transition: background 0.08s;
+}
+
+.download-file-item:last-child { border-bottom: none; }
+.download-file-item:hover { background: var(--stone); }
+
+.download-file-item .file-icon { color: var(--espresso); flex-shrink: 0; margin-top: 2px; }
+
+.download-file-item .file-meta { flex: 1; min-width: 0; }
+
+.download-file-item .fname {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.download-file-item .fsize {
+  font-size: 0.6875rem;
+  color: var(--flint);
+  margin-top: 1px;
+}
+
+/* ─── Single file card ────────────────────────────── */
+
+.file-card {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--cream);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-sm);
+}
+
+.file-card-icon { color: var(--espresso); flex-shrink: 0; margin-top: 1px; }
+.file-card-meta { flex: 1; min-width: 0; }
+
+.file-card .fname {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-card .fsize { font-size: 0.6875rem; color: var(--flint); margin-top: 2px; }
+
+/* ─── Note preview ────────────────────────────────── */
+
+.note-preview {
+  width: 100%;
+  background: var(--cream);
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  padding: 11px 13px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* ─── Section heading ─────────────────────────────── */
+
+h2.section-heading {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+/* ─── Section divider ─────────────────────────────── */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 20px;
+  color: var(--ash);
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--pebble);
+}
+
+.section-divider span {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
