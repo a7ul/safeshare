@@ -101,7 +101,7 @@ body {
 
 .card-title {
   font-size: var(--text-base);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
