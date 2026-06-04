@@ -279,7 +279,6 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           {/* Expiry */}
           <div className="expiry-section">
             <span className="section-label">Expires after</span>
-
             <div className="expiry-options">
               {(Object.keys(EXPIRY_LABELS) as ExpiryOption[]).map((opt) => (
                 <button key={opt} className={`expiry-opt${expiry === opt ? " active" : ""}`} onClick={() => setExpiry(opt)}>
