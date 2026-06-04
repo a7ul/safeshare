@@ -7,7 +7,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: run the Deno server with the built frontend embedded
-FROM denoland/deno:2.0.0
+FROM denoland/deno:2.7.7
 WORKDIR /app
 
 # Copy server source
