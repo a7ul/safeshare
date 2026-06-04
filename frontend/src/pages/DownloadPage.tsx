@@ -50,6 +50,22 @@ export function DownloadPage() {
           setEntries(manifest.map((m) => ({ ...m, dlStatus: "idle" })));
           setPageStatus("ready");
 
+          // Auto-fetch and decrypt single text note for preview
+          if (manifest.length === 1 && manifest[0].mime === "text/plain") {
+            const item = manifest[0];
+            const res = await fetch(`/api/files/${item.id}`);
+            if (!cancelled && res.ok) {
+              const encrypted = await res.arrayBuffer();
+              const key = await importKey(item.key);
+              const dec = await decryptPayload(key, encrypted);
+              if (!cancelled) {
+                const blob = new Blob([dec.content], { type: dec.mimeType });
+                const text = new TextDecoder().decode(dec.content);
+                setEntries([{ ...item, dlStatus: "idle", _blob: blob, _text: text }]);
+              }
+            }
+          }
+
           // Fetch expiry for first item
           const exp = await fetchExpiry(manifest[0].id);
           if (!cancelled && exp) {

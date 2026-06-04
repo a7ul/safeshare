@@ -7,7 +7,6 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<UploadPage />} />
-        <Route path="/d/m" element={<DownloadPage />} />
         <Route path="/d/:id" element={<DownloadPage />} />
       </Routes>
     </BrowserRouter>

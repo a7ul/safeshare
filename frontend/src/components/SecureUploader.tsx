@@ -21,6 +21,7 @@ type Status = "idle" | "processing" | "done" | "error";
 interface UploadState {
   name: string;
   status: "pending" | "active" | "done";
+  progress: number;
 }
 
 export function SecureUploader() {
@@ -70,10 +71,12 @@ export function SecureUploader() {
         const key = await generateKey();
         const content = new TextEncoder().encode(note).buffer as ArrayBuffer;
         const encrypted = await encryptPayload(key, "note.txt", "text/plain", content);
-        setUploadStates([{ name: "note.txt", status: "active" }]);
+        setUploadStates([{ name: "note.txt", status: "active", progress: 0 }]);
 
         const id = await uploadEncrypted(encrypted, {
-          onProgress: () => {},
+          onProgress: (fraction) => {
+            setUploadStates([{ name: "note.txt", status: "active", progress: fraction }]);
+          },
           onError: (e) => { throw e; },
         });
 
@@ -84,14 +87,14 @@ export function SecureUploader() {
           size: content.byteLength,
           mime: "text/plain",
         });
-        setUploadStates([{ name: "note.txt", status: "done" }]);
+        setUploadStates([{ name: "note.txt", status: "done", progress: 1 }]);
       } else {
-        const states: UploadState[] = files.map((f) => ({ name: f.name, status: "pending" }));
+        const states: UploadState[] = files.map((f) => ({ name: f.name, status: "pending", progress: 0 }));
         setUploadStates(states);
 
         for (let i = 0; i < files.length; i++) {
           const f = files[i];
-          setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "active" } : x));
+          setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "active", progress: 0 } : x));
 
           const key = await generateKey();
           const content = await f.arrayBuffer();
@@ -103,7 +106,9 @@ export function SecureUploader() {
           );
 
           const id = await uploadEncrypted(encrypted, {
-            onProgress: () => {},
+            onProgress: (fraction) => {
+              setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fraction } : x));
+            },
             onError: (e) => { throw e; },
           });
 
@@ -115,7 +120,7 @@ export function SecureUploader() {
             mime: f.type || "application/octet-stream",
           });
 
-          setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "done" } : x));
+          setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "done", progress: 1 } : x));
         }
       }
 
@@ -211,7 +216,7 @@ export function SecureUploader() {
                     </div>
                   ))}
                 </div>
-                <button className="add-more-btn" onClick={() => addFileRef.current?.click()}>
+                <button className="add-more-btn" title="Add more files to this share" onClick={() => addFileRef.current?.click()}>
                   <input
                     ref={addFileRef}
                     type="file"
@@ -224,12 +229,19 @@ export function SecureUploader() {
               </>
             )
           ) : (
-            <textarea
-              className="note-input"
-              placeholder="Type your secure note…"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
+            <>
+              <textarea
+                className="note-input"
+                placeholder="Type your secure note…"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+              {note.length > 0 && (
+                <span className="eyebrow" style={{ textAlign: "right", marginTop: -6 }}>
+                  {note.length} character{note.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </>
           )}
 
           {status === "error" && (
@@ -256,6 +268,9 @@ export function SecureUploader() {
               <div className="upload-list-item" key={s.name}>
                 <div className={`upload-status-dot ${s.status}`} />
                 <span className="fname">{s.name}</span>
+                {s.status === "active" && (
+                  <span className="upload-progress-pct">{Math.round(s.progress * 100)}%</span>
+                )}
               </div>
             ))}
           </div>
