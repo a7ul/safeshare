@@ -99,8 +99,8 @@ export function HowItWorksPage() {
           </div>
         </div>
 
-        <p className="status-hint" style={{ marginTop: 16, textAlign: "center" }}>
-          Technically: AES-256-GCM encryption via the Web Crypto API, run entirely in your browser. The server has no decryption code. Even if it obtained the key, it could not read the data.
+        <p className="status-hint" style={{ marginTop: 16 }}>
+          Technically: AES-256-GCM encryption via the Web Crypto API, run entirely in your browser. The server has no decryption code.
         </p>
 
         <div className="open-source-note">
