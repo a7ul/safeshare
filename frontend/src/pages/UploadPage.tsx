@@ -15,9 +15,9 @@ export function UploadPage() {
         {!isDone && (
           <>
             <BrandRow logoUrl={logoUrl} title={title} />
-            <h1 className="page-heading">Share files, notes<br />and secrets securely.</h1>
+            <h1 className="page-heading">Share anything.<br />Privately.</h1>
             <p className="page-subtitle">
-              End-to-end encrypted in your browser. The server only ever stores ciphertext. It cannot read what you send.
+              Encrypted in your browser before it leaves your device. The server only stores the encrypted result and has no way to read it.
             </p>
           </>
         )}

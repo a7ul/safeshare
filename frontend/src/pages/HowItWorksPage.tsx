@@ -19,33 +19,33 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: <Lock size={16} />,
-    title: "It's locked on your device",
-    body: "The moment you pick a file or type a note, your browser scrambles it into unreadable ciphertext. This happens on your own computer, before anything is sent anywhere.",
+    title: "Encrypted on your device",
+    body: "Before anything leaves your device, your browser encrypts the file or note. The server never sees the original content.",
   },
   {
     icon: <KeyRound size={16} />,
-    title: "The key lives inside your link",
-    body: "Unscrambling it needs a secret key. That key is tucked into the end of your share link (after the \"#\"). Browsers are built to never send that part to any website, so it stays between you and whoever you hand the link to.",
+    title: "The key is in the link",
+    body: "The decryption key is embedded in the link itself, after the # symbol. Browsers never send that part to a server, so only the person with the link can decrypt it.",
   },
   {
     icon: <Server size={16} />,
-    title: "Our server only holds a sealed box",
-    body: "We receive and store just the encrypted bytes. We never get the key, so we couldn't read your file even if we wanted to, or if someone compelled us to hand it over.",
+    title: "The server stores only encrypted data",
+    body: "We store the encrypted result and nothing else. We have no access to the key, so we cannot read your files regardless of what we are asked.",
   },
   {
     icon: <EyeOff size={16} />,
-    title: "Only the link can open it",
-    body: "When your recipient opens the link, their browser fetches the encrypted payload, takes the key from the link, and decrypts it right there on their device. The plaintext only ever exists on your screen and theirs.",
+    title: "Decrypted on the recipient's device",
+    body: "When the recipient opens the link, their browser fetches the encrypted file and decrypts it locally. The content exists in plaintext only on your devices.",
   },
   {
     icon: <Clock size={16} />,
-    title: "It doesn't stick around",
-    body: "Every share has an expiry you choose, anywhere from 1 hour to 30 days. Once that time is up, the server deletes it automatically.",
+    title: "Automatically expires",
+    body: "Every share expires after a time you choose, from 1 hour to 30 days. After that, the file is deleted from the server automatically.",
   },
   {
     icon: <Trash2 size={16} />,
-    title: "You can delete it anytime",
-    body: "Changed your mind? Anyone holding the link can permanently delete the files before they expire. One click on the download page and the encrypted payload is gone from our server for good.",
+    title: "Delete it anytime",
+    body: "Anyone with the link can delete the file from the server before it expires. One click on the download page removes it permanently.",
   },
 ];
 
@@ -100,7 +100,7 @@ export function HowItWorksPage() {
         </div>
 
         <p className="status-hint" style={{ marginTop: 16 }}>
-          Your files and notes are encrypted in your browser before they leave your device. The server stores only the encrypted result and has no ability to read it.
+          Files and notes are encrypted using AES-256-GCM directly in your browser. The server stores only the encrypted result and has no ability to read it.
         </p>
 
         <div className="open-source-note">

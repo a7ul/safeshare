@@ -281,18 +281,18 @@ export function DownloadPage() {
               <ShieldCheck size={15} className="trust-badge-icon" />
               <div className="trust-badge-body">
                 <strong>Privately shared with you</strong>
-                <span>This link requires a secret to unlock. Enter the secret the sender gave you. Checked entirely in your browser.</span>
+                <span>This link is protected. Enter the secret the sender gave you to unlock it. Decryption happens entirely in your browser.</span>
               </div>
             </div>
-            <h1 className="page-heading" style={{ marginBottom: 8 }}>Enter secret to unlock.</h1>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Enter your secret.</h1>
             <p className="page-subtitle" style={{ marginBottom: 20 }}>
-              The sender shared a secret with you separately. Enter it below to decrypt.
+              The sender gave you a secret separately. Enter it below to unlock.
             </p>
             <form onSubmit={(e) => { e.preventDefault(); if (passcodeInput.trim()) unlock(passcodeInput); }}>
               <input
                 className="passcode-entry"
                 autoFocus
-                placeholder="Enter secret — e.g. ABCDE-FGHIJ"
+                placeholder="e.g. ABCDE-FGHIJ"
                 value={passcodeInput}
                 onChange={(e) => setPasscodeInput(e.target.value.toUpperCase())}
               />
@@ -323,7 +323,7 @@ export function DownloadPage() {
               <ShieldCheck size={15} className="trust-badge-icon" />
               <div className="trust-badge-body">
                 <strong>End-to-end encrypted</strong>
-                <span>Decrypted only in your browser. The server never saw the contents.</span>
+                <span>Decrypted in your browser. The server never had access to the contents.</span>
               </div>
             </div>
 
@@ -444,10 +444,9 @@ export function DownloadPage() {
               <CheckCheck size={18} />
             </div>
             <span className="section-label">Deleted</span>
-            <h1 className="page-heading" style={{ marginBottom: 8 }}>Link deleted.</h1>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Deleted.</h1>
             <p className="page-subtitle">
-              {entries.length === 1 ? "The file has" : "These files have"} been permanently removed
-              from the server. This link no longer works.
+              {entries.length === 1 ? "The file has" : "All files have"} been permanently removed from the server. This link no longer works.
             </p>
           </>
         )}
@@ -456,14 +455,14 @@ export function DownloadPage() {
         {pageStatus === "error" && (
           <>
             <span className="section-label">Error</span>
-            <h1 className="page-heading" style={{ marginBottom: 8 }}>Something went wrong.</h1>
-            <p className="page-subtitle" style={{ marginBottom: 16 }}>We couldn't open this link.</p>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Unable to open this link.</h1>
+            <p className="page-subtitle" style={{ marginBottom: 16 }}>The link may be expired, deleted, or malformed.</p>
             <div className="error-box">
               <TriangleAlert size={14} />
               <span>{error}</span>
             </div>
             <p className="status-hint" style={{ marginTop: 12 }}>
-              Make sure you have the full link including the fragment after #.
+              Make sure you copied the full link, including everything after the #.
             </p>
           </>
         )}

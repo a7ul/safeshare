@@ -221,7 +221,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           {/* Mode tabs */}
           <div className="mode-tabs">
             <button className={`mode-tab${mode === "file" ? " active" : ""}`} onClick={() => setMode("file")}>Files</button>
-            <button className={`mode-tab${mode === "note" ? " active" : ""}`} onClick={() => setMode("note")}>Note / Secret</button>
+            <button className={`mode-tab${mode === "note" ? " active" : ""}`} onClick={() => setMode("note")}>Note</button>
           </div>
 
           {/* Content area */}
@@ -238,7 +238,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
                 <div className="drop-hint">
                   <Upload size={28} className="drop-hint-icon" />
                   <strong>Drop files or click to browse</strong>
-                  <span>Multiple files · up to 500 MB each · encrypted before upload</span>
+                  <span>Up to 500 MB per file · encrypted before upload</span>
                 </div>
               </div>
             ) : (
@@ -317,7 +317,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
               </div>
             ))}
           </div>
-          <p className="status-hint">Files are encrypted in your browser. The server only receives ciphertext.</p>
+          <p className="status-hint">Encrypting in your browser. The server receives only the encrypted result.</p>
         </div>
       )}
 
@@ -328,13 +328,13 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           <BrandRow logoUrl={logoUrl ?? null} title={title ?? null} />
           <h1 className="page-heading">Ready to share.</h1>
           <p className="page-subtitle">
-            {expiryLabel ?? "Link active"} · Anyone with the link can read this. You can delete it at any time.
+            {expiryLabel ?? "Active"} · Anyone with this link can access the file. You can delete it at any time.
           </p>
 
           {/* Card 1: unified link */}
           <div className="share-card">
             <p className="share-card-title">Direct link</p>
-            <p className="share-card-desc">Everything in one link. Recipient opens it and can read immediately.</p>
+            <p className="share-card-desc">Send this one link. The recipient can open it directly, no extra steps.</p>
             <div className="share-url-row">
               <input readOnly className="share-url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
@@ -346,7 +346,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           {/* Card 2: link + passcode separately */}
           <div className="share-card">
             <p className="share-card-title">Send separately</p>
-            <p className="share-card-desc">Send the link and secret via different channels — e.g. link by email, secret by SMS.</p>
+            <p className="share-card-desc">Split the link and secret across two channels for extra security. e.g. link by email, secret by SMS.</p>
             <p className="share-field-label">Link</p>
             <div className="share-url-row" style={{ marginBottom: 10 }}>
               <input readOnly className="share-url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
