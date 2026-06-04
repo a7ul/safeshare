@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Trash2,
 } from "lucide-react";
+import { BrandRow } from "../components/BrandRow";
 import { useConfig } from "../hooks/useConfig";
 
 interface Step {
@@ -19,38 +20,32 @@ const STEPS: Step[] = [
   {
     icon: <Lock size={16} />,
     title: "It's locked on your device",
-    body:
-      "The moment you pick a file or type a note, your browser scrambles it into unreadable gibberish. This happens on your own computer — before anything is sent anywhere.",
+    body: "The moment you pick a file or type a note, your browser scrambles it into unreadable ciphertext. This happens on your own computer — before anything is sent anywhere.",
   },
   {
     icon: <KeyRound size={16} />,
     title: "The key lives inside your link",
-    body:
-      "Unscrambling it needs a secret key. That key is tucked into the end of your share link (the part after the “#”). Browsers are built to never send that part to any website — so it stays between you and whoever you hand the link to.",
+    body: "Unscrambling it needs a secret key. That key is tucked into the end of your share link (after the \"#\"). Browsers are built to never send that part to any website — so it stays between you and whoever you hand the link to.",
   },
   {
     icon: <Server size={16} />,
     title: "Our server only holds a sealed box",
-    body:
-      "We receive and store just the scrambled version. We never get the key, so we couldn't read your file even if we wanted to — or if someone demanded we hand it over.",
+    body: "We receive and store just the encrypted bytes. We never get the key, so we couldn't read your file even if we wanted to — or if someone compelled us to hand it over.",
   },
   {
     icon: <EyeOff size={16} />,
     title: "Only the link can open it",
-    body:
-      "When the person you shared with opens the link, their browser fetches the sealed box, takes the key from the link, and unscrambles it right there on their device. The readable content only ever exists on your screen and theirs.",
+    body: "When your recipient opens the link, their browser fetches the encrypted payload, takes the key from the link, and decrypts it right there on their device. The plaintext only ever exists on your screen and theirs.",
   },
   {
     icon: <Clock size={16} />,
     title: "It doesn't stick around",
-    body:
-      "Every share has an expiry you choose — anywhere from 1 hour to 30 days. Once that time is up, it's deleted automatically.",
+    body: "Every share has an expiry you choose — anywhere from 1 hour to 30 days. Once that time is up, the server deletes it automatically.",
   },
   {
     icon: <Trash2 size={16} />,
     title: "You can delete it anytime",
-    body:
-      "Changed your mind? Anyone holding the link can permanently delete the files before they expire — one click on the download page, and the sealed box is wiped from our server for good.",
+    body: "Changed your mind? Anyone holding the link can permanently delete the files before they expire — one click on the download page, and the encrypted payload is gone from our server for good.",
   },
 ];
 
@@ -60,17 +55,12 @@ export function HowItWorksPage() {
   return (
     <div className="page">
       <div className="card">
-        <div className="brand-row">
-          {logoUrl
-            ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" />
-            : <Lock size={14} className="brand-icon" />}
-          {title && <span className="card-title">{title}</span>}
-        </div>
+        <BrandRow logoUrl={logoUrl} title={title} />
 
-        <h1 className="card-heading">How it works</h1>
-        <p className="card-subtitle">
-          The plain-English version — no technical knowledge needed. Here's what
-          happens when you share something, and why even we can never see it.
+        <span className="section-label">Security</span>
+        <h1 className="page-heading">How it works</h1>
+        <p className="page-subtitle">
+          The plain-English version — no technical knowledge needed. Here's what happens when you share something, and why even we can never see it.
         </p>
 
         <div className="how-steps">
@@ -94,7 +84,7 @@ export function HowItWorksPage() {
             <div>
               <div className="how-summary-label can">Can see</div>
               <ul>
-                <li>The size of the sealed box</li>
+                <li>The size of the encrypted payload</li>
                 <li>When the share expires</li>
               </ul>
             </div>
@@ -110,12 +100,11 @@ export function HowItWorksPage() {
         </div>
 
         <p className="status-hint" style={{ marginTop: 16, textAlign: "center" }}>
-          For the technically curious: encryption is AES-256-GCM, run entirely in
-          your browser via the Web Crypto API. The server has no decryption code.
+          Technically: AES-256-GCM encryption via the Web Crypto API, run entirely in your browser. The server has zero decryption code.
         </p>
 
-        <div style={{ borderTop: "1px solid var(--pebble)", marginTop: 24, paddingTop: 20 }}>
-          <a href="/" className="btn-outline" style={{ display: "flex", textDecoration: "none" }}>
+        <div className="card-footer">
+          <a href="/" className="btn-outline" style={{ textDecoration: "none" }}>
             <Lock size={13} /> Share something securely
           </a>
         </div>

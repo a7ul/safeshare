@@ -51,8 +51,6 @@ export function DownloadPage() {
   const lockedRef = useRef<{ items: ManifestItem[]; kdf: Manifest["kdf"] } | null>(null);
   const { logoUrl, title } = useConfig();
 
-  // Render entries from raw (unwrapped) manifest items and, for a single text
-  // note, fetch + decrypt a preview. Used by both the open and passcode paths.
   const revealEntries = async (rawItems: ManifestItem[]) => {
     setEntries(rawItems.map((m) => ({ ...m, dlStatus: "idle" })));
     setPageStatus("ready");
@@ -75,8 +73,6 @@ export function DownloadPage() {
     }
   };
 
-  // Derive the key from the passcode, unwrap every file key, then reveal.
-  // A wrong passcode makes unwrapKey throw (AES-GCM auth failure).
   const unlock = async (passcode: string, fromLink = false) => {
     const locked = lockedRef.current;
     if (!locked || !locked.kdf) return;
@@ -111,15 +107,12 @@ export function DownloadPage() {
         if (!id) throw new Error("Invalid link.");
 
         if (id === "m") {
-          // Manifest format. Fragment is "<manifest>" or, for a unified link,
-          // "<manifest>~<passcode>". Neither half is ever sent to the server.
           const [manifestPart, passPart] = rawHash.split("~");
           const manifest = decodeManifest(manifestPart);
           const items = manifest.items;
           if (!items || items.length === 0) throw new Error("This link is empty or malformed.");
           if (cancelled) return;
 
-          // Expiry is in the manifest (cleartext) — show it without a round-trip.
           const embeddedExpiry = items[0].expiresAt;
           if (embeddedExpiry) {
             const { label, expired } = formatExpiry(embeddedExpiry);
@@ -131,18 +124,15 @@ export function DownloadPage() {
             lockedRef.current = { items, kdf: manifest.kdf };
             setLockedCount(items.length);
             if (passPart) {
-              // Unified link — passcode travels in the URL; unlock automatically.
               const pass = new TextDecoder().decode(b64urlDecode(passPart));
               await unlock(pass, true);
             } else {
-              // Plain passcode — ask the recipient for it.
               setPageStatus("passcode");
             }
           } else {
             await revealEntries(items);
           }
         } else {
-          // Legacy: id is a UUID, hash is the raw key.
           setPageStatus("loading");
           const res = await fetch(`/api/files/${id}`);
           if (!res.ok) {
@@ -238,20 +228,17 @@ export function DownloadPage() {
     setBulkRunning(false);
   };
 
-  // Delete the whole share. Anyone with the link holds every id in the
-  // manifest, so holding the link is exactly what authorises deletion.
   const deleteShare = async () => {
     if (deleteStatus === "idle") {
       setDeleteStatus("confirm");
       return;
     }
     setDeleteStatus("deleting");
-    cancelRef.current = true; // stop any in-flight bulk download
+    cancelRef.current = true;
     try {
       const results = await Promise.all(
         entries.map((e) => fetch(`/api/files/${e.id}`, { method: "DELETE" })),
       );
-      // 404 counts as success — the goal state (gone) is reached either way.
       const ok = results.every((r) => r.ok || r.status === 404);
       if (!ok) throw new Error("Some files couldn't be deleted. Please try again.");
       setPageStatus("deleted");
@@ -267,19 +254,19 @@ export function DownloadPage() {
   return (
     <div className="page">
       <div className="card">
-        {/* Header */}
         <BrandRow logoUrl={logoUrl} title={title} />
 
         {/* ── Loading ── */}
         {(pageStatus === "loading" || pageStatus === "decrypting") && (
           <>
-            <h1 className="card-heading" style={{ marginBottom: 4 }}>
-              {pageStatus === "decrypting" ? "Decrypting…" : "Fetching…"}
+            <span className="section-label">{pageStatus === "decrypting" ? "Decrypting" : "Fetching"}</span>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>
+              {pageStatus === "decrypting" ? "Decrypting your file…" : "Fetching encrypted file…"}
             </h1>
-            <p className="card-subtitle">
+            <p className="page-subtitle" style={{ marginBottom: 24 }}>
               {pageStatus === "decrypting"
-                ? "Decrypting in your browser. The server never sees the contents."
-                : "Downloading encrypted file from server."}
+                ? "Happening entirely in your browser. The server never sees the contents."
+                : "Downloading the encrypted payload from the server."}
             </p>
             <div className="progress-track">
               <div className="progress-bar" style={{ width: pageStatus === "decrypting" ? "70%" : "30%" }} />
@@ -290,42 +277,39 @@ export function DownloadPage() {
         {/* ── Passcode prompt ── */}
         {pageStatus === "passcode" && (
           <>
-            <div className="trust-anchor">
-              <ShieldCheck size={15} className="trust-anchor-icon" />
-              <div className="trust-anchor-body">
+            <div className="trust-badge">
+              <ShieldCheck size={15} className="trust-badge-icon" />
+              <div className="trust-badge-body">
                 <strong>Privately shared with you</strong>
-                <span>This share is passcode-protected. Enter the passcode the sender gave you to unlock it — it's checked entirely in your browser.</span>
+                <span>This share is passcode-protected. Enter the passcode the sender gave you — checked entirely in your browser.</span>
               </div>
             </div>
-            <h1 className="card-heading" style={{ marginTop: 16, marginBottom: 4 }}>Enter passcode</h1>
-            <p className="card-subtitle">
-              {lockedCount === 1 ? "1 file is" : `${lockedCount} files are`} waiting behind a passcode.
+            <span className="section-label">Enter passcode</span>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Unlock your {lockedCount === 1 ? "file" : `${lockedCount} files`}.</h1>
+            <p className="page-subtitle" style={{ marginBottom: 20 }}>
+              The sender shared a passcode with you separately. Enter it below to decrypt.
             </p>
             <form onSubmit={(e) => { e.preventDefault(); if (passcodeInput.trim()) unlock(passcodeInput); }}>
               <input
                 className="passcode-entry"
                 autoFocus
-                placeholder="Passcode — e.g. ABCDE-FGHIJ"
+                placeholder="e.g. ABCDE-FGHIJ"
                 value={passcodeInput}
                 onChange={(e) => setPasscodeInput(e.target.value.toUpperCase())}
               />
               {passcodeError && (
-                <div className="error-box" style={{ marginBottom: 10 }}>
+                <div className="error-box" style={{ marginBottom: 12 }}>
                   <TriangleAlert size={14} />
                   <span>{passcodeError}</span>
                 </div>
               )}
-              <button
-                type="submit"
-                className="btn-primary"
-                disabled={unlocking || passcodeInput.trim().length === 0}
-              >
-                <KeyRound size={13} />
+              <button type="submit" className="btn-primary" disabled={unlocking || passcodeInput.trim().length === 0}>
+                <KeyRound size={14} />
                 {unlocking ? "Unlocking…" : "Unlock"}
               </button>
             </form>
             {expiryLabel && (
-              <div className={`expiry-badge${expiryExpired ? " expired" : ""}`} style={{ marginTop: 12 }}>
+              <div className={`expiry-badge${expiryExpired ? " expired" : ""}`} style={{ marginTop: 14 }}>
                 <Clock size={11} />
                 {expiryLabel}
               </div>
@@ -336,23 +320,23 @@ export function DownloadPage() {
         {/* ── Ready ── */}
         {pageStatus === "ready" && entries.length > 0 && (
           <>
-            <div className="trust-anchor">
-              <ShieldCheck size={15} className="trust-anchor-icon" />
-              <div className="trust-anchor-body">
-                <strong>Privately shared with you</strong>
-                <span>End-to-end encrypted — decrypted only here in your browser. The server never saw the contents.</span>
+            <div className="trust-badge">
+              <ShieldCheck size={15} className="trust-badge-icon" />
+              <div className="trust-badge-body">
+                <strong>End-to-end encrypted</strong>
+                <span>Decrypted only in your browser. The server never saw the contents.</span>
               </div>
             </div>
 
-            <h1 className="card-heading" style={{ marginTop: 16, marginBottom: 4 }}>
+            <span className="section-label">
+              {entries.length === 1 ? "Your file" : `${entries.length} files`}
+            </span>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>
               {entries.length === 1 ? "Your file is ready." : `${entries.length} files ready.`}
             </h1>
-            <p className="card-subtitle" style={{ marginBottom: expiryLabel ? 8 : 20 }}>
-              Decrypted entirely in your browser.
-            </p>
 
             {expiryLabel && (
-              <div className={`expiry-badge${expiryExpired ? " expired" : ""}`} style={{ marginBottom: 16 }}>
+              <div className={`expiry-badge${expiryExpired ? " expired" : ""}`} style={{ marginBottom: 20 }}>
                 <Clock size={11} />
                 {expiryLabel}
               </div>
@@ -368,11 +352,10 @@ export function DownloadPage() {
                     <div className="fsize">{fmtSize(singleEntry.size)}</div>
                   </div>
                 </div>
-                <textarea readOnly className="note-preview" value={singleEntry._text} />
+                <textarea readOnly className="note-preview" value={singleEntry._text} style={{ marginBottom: 16 }} />
               </>
             ) : singleEntry ? (
-              /* Single file */
-              <div className="file-card" style={{ marginBottom: 10 }}>
+              <div className="file-card" style={{ marginBottom: 16 }}>
                 <FileText size={15} className="file-card-icon" />
                 <div className="file-card-meta">
                   <div className="fname">{singleEntry.name}</div>
@@ -380,8 +363,7 @@ export function DownloadPage() {
                 </div>
               </div>
             ) : (
-              /* Multiple files */
-              <div className="download-file-list" style={{ marginBottom: 10 }}>
+              <div className="download-file-list" style={{ marginBottom: 16 }}>
                 {entries.map((e, i) => (
                   <div className="download-file-item" key={e.id}>
                     <FileText size={14} className="file-icon" />
@@ -411,7 +393,7 @@ export function DownloadPage() {
                 onClick={() => downloadOne(entries[0], 0)}
                 disabled={entries[0].dlStatus === "downloading"}
               >
-                <Download size={13} />
+                <Download size={14} />
                 {entries[0].dlStatus === "done" ? "Downloaded" : (singleEntry?._text ? "Download note" : "Download file")}
               </button>
             ) : (
@@ -420,16 +402,12 @@ export function DownloadPage() {
                 onClick={downloadAll}
                 disabled={bulkRunning || allDone}
               >
-                <Download size={13} />
+                <Download size={14} />
                 {bulkRunning ? "Downloading…" : allDone ? "All downloaded" : `Download all ${entries.length} files`}
               </button>
             )}
 
-            <p className="status-hint" style={{ marginTop: 10 }}>
-              The server never saw the contents of {entries.length === 1 ? "this file" : "these files"}.
-            </p>
-
-            {/* ── Delete control ── */}
+            {/* Delete control */}
             <div className="delete-row">
               {deleteStatus === "error" && (
                 <div className="error-box" style={{ marginBottom: 10 }}>
@@ -444,20 +422,14 @@ export function DownloadPage() {
                     the server for everyone — this can't be undone.
                   </span>
                   <div className="delete-confirm-actions">
-                    <button className="btn-ghost" onClick={() => setDeleteStatus("idle")}>
-                      Cancel
-                    </button>
+                    <button className="btn-ghost" onClick={() => setDeleteStatus("idle")}>Cancel</button>
                     <button className="btn-danger" onClick={deleteShare}>
                       <Trash2 size={13} /> Delete forever
                     </button>
                   </div>
                 </div>
               ) : (
-                <button
-                  className="btn-delete-link"
-                  onClick={deleteShare}
-                  disabled={deleteStatus === "deleting"}
-                >
+                <button className="btn-delete-link" onClick={deleteShare} disabled={deleteStatus === "deleting"}>
                   <Trash2 size={12} />
                   {deleteStatus === "deleting" ? "Deleting…" : "Delete this link"}
                 </button>
@@ -469,11 +441,12 @@ export function DownloadPage() {
         {/* ── Deleted ── */}
         {pageStatus === "deleted" && (
           <>
-            <div className="status-icon success" style={{ margin: "6px 0 16px" }}>
+            <div className="status-icon success" style={{ margin: "4px 0 16px" }}>
               <CheckCheck size={18} />
             </div>
-            <h1 className="card-heading" style={{ marginBottom: 4 }}>Link deleted.</h1>
-            <p className="card-subtitle">
+            <span className="section-label">Deleted</span>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Link deleted.</h1>
+            <p className="page-subtitle">
               {entries.length === 1 ? "The file has" : "These files have"} been permanently removed
               from the server. This link no longer works.
             </p>
@@ -483,24 +456,25 @@ export function DownloadPage() {
         {/* ── Error ── */}
         {pageStatus === "error" && (
           <>
-            <h1 className="card-heading" style={{ marginBottom: 4 }}>Something went wrong.</h1>
-            <p className="card-subtitle">We couldn't decrypt this link.</p>
+            <span className="section-label">Error</span>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Something went wrong.</h1>
+            <p className="page-subtitle" style={{ marginBottom: 16 }}>We couldn't open this link.</p>
             <div className="error-box">
               <TriangleAlert size={14} />
               <span>{error}</span>
             </div>
-            <p className="status-hint" style={{ marginTop: 10 }}>
-              Make sure you have the full link including the key after #.
+            <p className="status-hint" style={{ marginTop: 12 }}>
+              Make sure you have the full link including the fragment after #.
             </p>
           </>
         )}
 
-        {/* ── Footer CTA ── */}
-        <div style={{ borderTop: "1px solid var(--pebble)", marginTop: 24, paddingTop: 20 }}>
-          <a href="/" className="btn-outline" style={{ display: "flex", textDecoration: "none", marginTop: 0 }}>
+        {/* ── Footer ── */}
+        <div className="card-footer">
+          <a href="/" className="btn-outline" style={{ textDecoration: "none" }}>
             <Lock size={13} /> Share your own file securely
           </a>
-          <div className="how-link-row">
+          <div className="how-link-row" style={{ marginTop: 0 }}>
             <a href="/how-it-works" className="text-link">
               <HelpCircle size={12} /> How it works
             </a>
