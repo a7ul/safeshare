@@ -328,7 +328,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           <BrandRow logoUrl={logoUrl ?? null} title={title ?? null} />
           <h1 className="page-heading">Ready to share.</h1>
           <p className="page-subtitle">
-            {expiryLabel ?? "Link active"} · Anyone with the link and passcode can read this. You can delete it at any time.
+            {expiryLabel ?? "Link active"} · Anyone with the link can read this. You can delete it at any time.
           </p>
 
           {/* Card 1: unified link */}
@@ -346,7 +346,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           {/* Card 2: link + passcode separately */}
           <div className="share-card">
             <p className="share-card-title">Send separately</p>
-            <p className="share-card-desc">Send the link and passcode via different channels for extra security.</p>
+            <p className="share-card-desc">Send the link and secret via different channels — e.g. link by email, secret by SMS.</p>
             <p className="share-field-label">Link</p>
             <div className="share-url-row" style={{ marginBottom: 10 }}>
               <input readOnly className="share-url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
@@ -354,7 +354,7 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
                 {copiedLink ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
               </button>
             </div>
-            <p className="share-field-label">Passcode</p>
+            <p className="share-field-label">Secret</p>
             <div className="share-url-row">
               <input readOnly className="share-url-input passcode-display" value={passcode} onClick={(e) => (e.target as HTMLInputElement).select()} />
               <button className={`btn-copy${copiedPasscode ? " copied" : ""}`} onClick={makeCopier(passcode, setCopiedPasscode)}>

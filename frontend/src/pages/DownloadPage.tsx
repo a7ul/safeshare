@@ -89,7 +89,7 @@ export function DownloadPage() {
         setError("This link's passcode is invalid or the link is corrupted.");
         setPageStatus("error");
       } else {
-        setPasscodeError("Incorrect passcode. Check it and try again.");
+        setPasscodeError("Incorrect secret. Check it and try again.");
       }
     } finally {
       setUnlocking(false);
@@ -281,19 +281,18 @@ export function DownloadPage() {
               <ShieldCheck size={15} className="trust-badge-icon" />
               <div className="trust-badge-body">
                 <strong>Privately shared with you</strong>
-                <span>This share is passcode-protected. Enter the passcode the sender gave you. Checked entirely in your browser.</span>
+                <span>This link requires a secret to unlock. Enter the secret the sender gave you. Checked entirely in your browser.</span>
               </div>
             </div>
-            <span className="section-label">Enter passcode</span>
-            <h1 className="page-heading" style={{ marginBottom: 8 }}>Unlock your {lockedCount === 1 ? "file" : `${lockedCount} files`}.</h1>
+            <h1 className="page-heading" style={{ marginBottom: 8 }}>Enter secret to unlock.</h1>
             <p className="page-subtitle" style={{ marginBottom: 20 }}>
-              The sender shared a passcode with you separately. Enter it below to decrypt.
+              The sender shared a secret with you separately. Enter it below to decrypt.
             </p>
             <form onSubmit={(e) => { e.preventDefault(); if (passcodeInput.trim()) unlock(passcodeInput); }}>
               <input
                 className="passcode-entry"
                 autoFocus
-                placeholder="e.g. ABCDE-FGHIJ"
+                placeholder="Enter secret — e.g. ABCDE-FGHIJ"
                 value={passcodeInput}
                 onChange={(e) => setPasscodeInput(e.target.value.toUpperCase())}
               />
