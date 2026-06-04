@@ -713,6 +713,61 @@ h2.section-heading {
   white-space: nowrap;
 }
 
+/* ─── Expiry picker ───────────────────────────────── */
+
+.expiry-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 6px;
+  flex-wrap: wrap;
+}
+
+.expiry-row-icon { color: var(--ash); flex-shrink: 0; }
+
+.expiry-row-label {
+  font-size: 0.75rem;
+  color: var(--flint);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.expiry-options {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.expiry-opt {
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--pebble);
+  border-radius: var(--r-xs);
+  color: var(--flint);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.1s, background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.expiry-opt:hover { border-color: var(--ash); color: var(--ink); }
+
+.expiry-opt.active {
+  background: var(--stone);
+  border-color: var(--ash);
+  color: var(--ink);
+}
+
+.upload-progress-pct {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ash);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ─── Mobile responsive ───────────────────────────── */
 
 @media (max-width: 480px) {

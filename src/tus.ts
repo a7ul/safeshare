@@ -10,6 +10,19 @@ import {
 const TUS_VERSION = "1.0.0";
 const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
 
+function parseTusMetadata(header: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const pair of header.split(",")) {
+    const [key, b64] = pair.trim().split(" ");
+    if (key && b64) {
+      try {
+        result[key] = atob(b64);
+      } catch { /* ignore malformed entries */ }
+    }
+  }
+  return result;
+}
+
 export function createTusRouter(): Hono {
   const router = new Hono();
 
@@ -29,8 +42,12 @@ export function createTusRouter(): Hono {
       return c.text("Invalid Upload-Length", 400);
     }
 
+    const metaHeader = c.req.header("Upload-Metadata") ?? "";
+    const meta = metaHeader ? parseTusMetadata(metaHeader) : {};
+    const requestedExpiresAt = meta["expires-at"] ?? undefined;
+
     const id = crypto.randomUUID();
-    await createUpload(id, size);
+    await createUpload(id, size, requestedExpiresAt);
 
     return c.newResponse(null, 201, {
       ...tusHeaders(),

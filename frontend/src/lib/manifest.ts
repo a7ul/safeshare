@@ -1,9 +1,10 @@
 export interface ManifestItem {
   id: string;
-  key: string;  // base64url AES key
+  key: string;     // base64url AES-256-GCM key
   name: string;
-  size: number; // original plaintext size in bytes
+  size: number;    // original plaintext size in bytes
   mime: string;
+  expiresAt: string; // ISO-8601 — embedded in link, tamper-evident
 }
 
 export function encodeManifest(items: ManifestItem[]): string {

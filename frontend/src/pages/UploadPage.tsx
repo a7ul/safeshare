@@ -1,22 +1,21 @@
 import { Lock } from "lucide-react";
 import { SecureUploader } from "../components/SecureUploader";
-import { useLogo } from "../hooks/useLogo";
+import { useConfig } from "../hooks/useConfig";
 
 export function UploadPage() {
-  const logoUrl = useLogo();
+  const { logoUrl, title } = useConfig();
 
   return (
     <div className="page">
       <div className="card">
         <div className="brand-row">
           {logoUrl
-            ? <img src={logoUrl} alt="logo" className="brand-logo" />
+            ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" />
             : <Lock size={14} className="brand-icon" />}
-          {!logoUrl && <span className="card-title">Secure File Share</span>}
+          {title && <span className="card-title">{title}</span>}
         </div>
-        {logoUrl && <span className="card-title" style={{ marginBottom: 2 }}>Secure File Share</span>}
-        <h1 className="card-heading">Share anything, privately.</h1>
-        <p className="card-subtitle">End-to-end encrypted — the server never sees your content.</p>
+        <h1 className="card-heading">Share files, notes and secrets securely.</h1>
+        <p className="card-subtitle">End-to-end encrypted between your browser and the receiver. No information is visible to the server.</p>
         <SecureUploader />
       </div>
     </div>

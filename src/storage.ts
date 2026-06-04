@@ -23,12 +23,26 @@ function infoPath(id: string): string {
   return `${uploadDir(id)}/info.json`;
 }
 
-const TTL_DAYS = parseInt(Deno.env.get("LINK_TTL_DAYS") ?? "7", 10);
+const MAX_TTL_DAYS = parseInt(Deno.env.get("LINK_TTL_DAYS") ?? "30", 10);
 
-export async function createUpload(id: string, size: number): Promise<void> {
+export async function createUpload(
+  id: string,
+  size: number,
+  requestedExpiresAt?: string,
+): Promise<void> {
   await Deno.mkdir(uploadDir(id), { recursive: true });
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + TTL_DAYS * 24 * 60 * 60 * 1000);
+  const maxExpiry = new Date(now.getTime() + MAX_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+  let expiresAt: Date;
+  if (requestedExpiresAt) {
+    const requested = new Date(requestedExpiresAt);
+    // Use client-provided expiry, clamped to the server maximum
+    expiresAt = requested > maxExpiry ? maxExpiry : requested < now ? maxExpiry : requested;
+  } else {
+    expiresAt = maxExpiry;
+  }
+
   const info: UploadInfo = {
     size,
     offset: 0,

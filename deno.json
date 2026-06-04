@@ -2,6 +2,7 @@
   "tasks": {
     "dev": "deno run --allow-read --allow-write --allow-net --allow-env --watch main.ts",
     "start": "deno run --allow-read --allow-write --allow-net --allow-env main.ts",
-    "build-frontend": "cd frontend && npm install && npm run build"
+    "build-frontend": "cd frontend && npm install && npm run build",
+    "compile": "deno compile --allow-read --allow-write --allow-net --allow-env --output secureshare main.ts"
   }
 }

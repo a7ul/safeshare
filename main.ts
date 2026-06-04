@@ -41,6 +41,7 @@ app.use(
 app.get("/api/config", (c) => {
   return c.json({
     logoUrl: Deno.env.get("LOGO_URL") ?? null,
+    title: Deno.env.get("TITLE") ?? null,
   });
 });
 

@@ -13,7 +13,7 @@ import {
 import { encryptPayload, exportKey, generateKey } from "../lib/crypto";
 import { uploadEncrypted } from "../lib/uploader";
 import { encodeManifest, fmtSize, type ManifestItem } from "../lib/manifest";
-import { fetchExpiry, formatExpiry } from "../lib/expiry";
+import { formatExpiry } from "../lib/expiry";
 
 type Mode = "file" | "note";
 type Status = "idle" | "processing" | "done" | "error";
@@ -24,10 +24,30 @@ interface UploadState {
   progress: number;
 }
 
+type ExpiryOption = "1h" | "24h" | "7d" | "30d";
+
+const EXPIRY_LABELS: Record<ExpiryOption, string> = {
+  "1h": "1 hour",
+  "24h": "24 hours",
+  "7d": "7 days",
+  "30d": "30 days",
+};
+
+function expiryToDate(opt: ExpiryOption): Date {
+  const ms: Record<ExpiryOption, number> = {
+    "1h":  60 * 60 * 1000,
+    "24h": 24 * 60 * 60 * 1000,
+    "7d":  7  * 24 * 60 * 60 * 1000,
+    "30d": 30 * 24 * 60 * 60 * 1000,
+  };
+  return new Date(Date.now() + ms[opt]);
+}
+
 export function SecureUploader() {
   const [mode, setMode] = useState<Mode>("file");
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
+  const [expiry, setExpiry] = useState<ExpiryOption>("7d");
   const [status, setStatus] = useState<Status>("idle");
   const [uploadStates, setUploadStates] = useState<UploadState[]>([]);
   const [shareUrl, setShareUrl] = useState("");
@@ -65,6 +85,8 @@ export function SecureUploader() {
     try {
       setStatus("processing");
       setError("");
+
+      const expiresAt = expiryToDate(expiry).toISOString();
       const manifest: ManifestItem[] = [];
 
       if (mode === "note") {
@@ -73,12 +95,16 @@ export function SecureUploader() {
         const encrypted = await encryptPayload(key, "note.txt", "text/plain", content);
         setUploadStates([{ name: "note.txt", status: "active", progress: 0 }]);
 
-        const id = await uploadEncrypted(encrypted, {
-          onProgress: (fraction) => {
-            setUploadStates([{ name: "note.txt", status: "active", progress: fraction }]);
+        const id = await uploadEncrypted(
+          encrypted,
+          {
+            onProgress: (fraction) => {
+              setUploadStates([{ name: "note.txt", status: "active", progress: fraction }]);
+            },
+            onError: (e) => { throw e; },
           },
-          onError: (e) => { throw e; },
-        });
+          { expiresAt },
+        );
 
         manifest.push({
           id,
@@ -86,6 +112,7 @@ export function SecureUploader() {
           name: "note.txt",
           size: content.byteLength,
           mime: "text/plain",
+          expiresAt,
         });
         setUploadStates([{ name: "note.txt", status: "done", progress: 1 }]);
       } else {
@@ -105,12 +132,16 @@ export function SecureUploader() {
             content,
           );
 
-          const id = await uploadEncrypted(encrypted, {
-            onProgress: (fraction) => {
-              setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fraction } : x));
+          const id = await uploadEncrypted(
+            encrypted,
+            {
+              onProgress: (fraction) => {
+                setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fraction } : x));
+              },
+              onError: (e) => { throw e; },
             },
-            onError: (e) => { throw e; },
-          });
+            { expiresAt },
+          );
 
           manifest.push({
             id,
@@ -118,6 +149,7 @@ export function SecureUploader() {
             name: f.name,
             size: f.size,
             mime: f.type || "application/octet-stream",
+            expiresAt,
           });
 
           setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "done", progress: 1 } : x));
@@ -127,13 +159,10 @@ export function SecureUploader() {
       const encoded = encodeManifest(manifest);
       setShareUrl(`${window.location.origin}/d/m#${encoded}`);
 
-      // Fetch expiry from first uploaded file
-      const exp = await fetchExpiry(manifest[0].id);
-      if (exp) {
-        const { label, expired } = formatExpiry(exp);
-        setExpiryLabel(label);
-        setExpiryExpired(expired);
-      }
+      // Expiry is embedded in the manifest, no server round-trip needed
+      const { label, expired } = formatExpiry(expiresAt);
+      setExpiryLabel(label);
+      setExpiryExpired(expired);
 
       setStatus("done");
     } catch (err) {
@@ -152,6 +181,7 @@ export function SecureUploader() {
     setMode("file");
     setFiles([]);
     setNote("");
+    setExpiry("7d");
     setStatus("idle");
     setUploadStates([]);
     setShareUrl("");
@@ -243,6 +273,23 @@ export function SecureUploader() {
               )}
             </>
           )}
+
+          {/* Expiry picker */}
+          <div className="expiry-row">
+            <Clock size={11} className="expiry-row-icon" />
+            <span className="expiry-row-label">Expires after</span>
+            <div className="expiry-options">
+              {(Object.keys(EXPIRY_LABELS) as ExpiryOption[]).map((opt) => (
+                <button
+                  key={opt}
+                  className={`expiry-opt${expiry === opt ? " active" : ""}`}
+                  onClick={() => setExpiry(opt)}
+                >
+                  {EXPIRY_LABELS[opt]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {status === "error" && (
             <div className="error-box" style={{ marginBottom: 8 }}>

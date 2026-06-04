@@ -11,7 +11,7 @@ import {
 import { decryptPayload, importKey } from "../lib/crypto";
 import { decodeManifest, fmtSize, type ManifestItem } from "../lib/manifest";
 import { fetchExpiry, formatExpiry } from "../lib/expiry";
-import { useLogo } from "../hooks/useLogo";
+import { useConfig } from "../hooks/useConfig";
 
 type PageStatus = "loading" | "decrypting" | "ready" | "error";
 type FileStatus = "idle" | "downloading" | "done";
@@ -31,7 +31,7 @@ export function DownloadPage() {
   const [error, setError] = useState("");
   const [bulkRunning, setBulkRunning] = useState(false);
   const cancelRef = useRef(false);
-  const logoUrl = useLogo();
+  const { logoUrl, title } = useConfig();
 
   useEffect(() => {
     let cancelled = false;
@@ -66,10 +66,10 @@ export function DownloadPage() {
             }
           }
 
-          // Fetch expiry for first item
-          const exp = await fetchExpiry(manifest[0].id);
-          if (!cancelled && exp) {
-            const { label, expired } = formatExpiry(exp);
+          // Read expiry directly from manifest — no server round-trip needed
+          const embeddedExpiry = manifest[0].expiresAt;
+          if (!cancelled && embeddedExpiry) {
+            const { label, expired } = formatExpiry(embeddedExpiry);
             setExpiryLabel(label);
             setExpiryExpired(expired);
           }
@@ -80,7 +80,7 @@ export function DownloadPage() {
           if (!res.ok) {
             throw new Error(
               res.status === 404
-                ? "File not found — it may have been deleted or the link is invalid."
+                ? "File not found. It may have been deleted or the link is invalid."
                 : res.status === 410
                   ? "This link has expired."
                   : `Server error (${res.status}).`,
@@ -105,6 +105,7 @@ export function DownloadPage() {
             name: dec.filename,
             size: dec.content.byteLength,
             mime: dec.mimeType,
+            expiresAt: "",
             dlStatus: "idle",
             _blob: blob,
             _text: text,
@@ -178,11 +179,10 @@ export function DownloadPage() {
         {/* Header */}
         <div className="brand-row">
           {logoUrl
-            ? <img src={logoUrl} alt="logo" className="brand-logo" />
+            ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" />
             : <Lock size={14} className="brand-icon" />}
-          {!logoUrl && <span className="card-title">Secure File Share</span>}
+          {title && <span className="card-title">{title}</span>}
         </div>
-        {logoUrl && <span className="card-title" style={{ marginBottom: 2 }}>Secure File Share</span>}
 
         {/* ── Loading ── */}
         {(pageStatus === "loading" || pageStatus === "decrypting") && (
@@ -192,7 +192,7 @@ export function DownloadPage() {
             </h1>
             <p className="card-subtitle">
               {pageStatus === "decrypting"
-                ? "Decrypting in your browser — the server never sees the contents."
+                ? "Decrypting in your browser. The server never sees the contents."
                 : "Downloading encrypted file from server."}
             </p>
             <div className="progress-track">

@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/components/secureuploader.tsx","./src/hooks/uselogo.ts","./src/lib/crypto.ts","./src/lib/expiry.ts","./src/lib/manifest.ts","./src/lib/uploader.ts","./src/pages/downloadpage.tsx","./src/pages/uploadpage.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/secureuploader.tsx","./src/hooks/useconfig.ts","./src/hooks/uselogo.ts","./src/lib/crypto.ts","./src/lib/expiry.ts","./src/lib/manifest.ts","./src/lib/uploader.ts","./src/pages/downloadpage.tsx","./src/pages/uploadpage.tsx"],"version":"5.9.3"}
