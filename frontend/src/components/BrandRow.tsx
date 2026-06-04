@@ -15,7 +15,7 @@ export function BrandRow({ logoUrl, title }: BrandRowProps) {
       {showLogo
         ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" onError={() => setImgFailed(true)} />
         : <Lock size={15} className="brand-icon" />}
-      {title && <span className="card-title">{title}</span>}
+      {title && <span className="brand-name">{title}</span>}
     </div>
   );
 }
