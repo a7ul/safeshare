@@ -60,7 +60,7 @@ export function HowItWorksPage() {
         <span className="section-label">Security</span>
         <h1 className="page-heading">How it works</h1>
         <p className="page-subtitle">
-          The plain-English version. No technical knowledge needed. Here's what happens when you share something, and why even we can never see it.
+          Here's what's happening.
         </p>
 
         <div className="how-steps">
@@ -100,7 +100,7 @@ export function HowItWorksPage() {
         </div>
 
         <p className="status-hint" style={{ marginTop: 16 }}>
-          Technically: AES-256-GCM encryption via the Web Crypto API, run entirely in your browser. The server has no decryption code.
+          Your files and notes are encrypted in your browser before they leave your device. The server stores only the encrypted result and has no ability to read it.
         </p>
 
         <div className="open-source-note">
@@ -112,6 +112,7 @@ export function HowItWorksPage() {
             . The code is intentionally open source so anyone can verify the security of it.
           </p>
         </div>
+
 
         <div className="card-footer">
           <a href="/" className="btn-outline" style={{ textDecoration: "none" }}>
