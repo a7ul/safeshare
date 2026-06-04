@@ -18,22 +18,22 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             label: linux-x64
-            output: secureshare-linux-x64
+            output: safeshare-linux-x64
           - target: aarch64-unknown-linux-gnu
             label: linux-arm64
-            output: secureshare-linux-arm64
+            output: safeshare-linux-arm64
           - target: x86_64-pc-windows-msvc
             label: windows-x64
-            output: secureshare-windows-x64.exe
+            output: safeshare-windows-x64.exe
           - target: x86_64-apple-darwin
             label: macos-x64
-            output: secureshare-macos-x64
+            output: safeshare-macos-x64
           - target: aarch64-apple-darwin
             label: macos-arm64
-            output: secureshare-macos-arm64
+            output: safeshare-macos-arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Deno
         uses: denoland/setup-deno@v2
@@ -41,7 +41,7 @@ jobs:
           deno-version: v2.x
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -60,7 +60,7 @@ jobs:
             main.ts
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.output }}
           path: ${{ matrix.output }}
@@ -71,7 +71,7 @@ jobs:
     needs: build-binaries
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -89,11 +89,11 @@ jobs:
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
-          name: SecureShare ${{ github.ref_name }}
+          name: SafeShare ${{ github.ref_name }}
           body: |
-            ## SecureShare ${{ github.ref_name }}
+            ## SafeShare ${{ github.ref_name }}
 
             End-to-end encrypted file and note sharing.
 
@@ -103,12 +103,12 @@ jobs:
 
             ```bash
             # Linux (x64)
-            chmod +x secureshare-linux-x64
-            STORAGE_DIR=/var/lib/secureshare ./secureshare-linux-x64
+            chmod +x safeshare-linux-x64
+            STORAGE_DIR=/var/lib/safeshare ./safeshare-linux-x64
 
             # macOS (Apple Silicon)
-            chmod +x secureshare-macos-arm64
-            STORAGE_DIR=/var/lib/secureshare ./secureshare-macos-arm64
+            chmod +x safeshare-macos-arm64
+            STORAGE_DIR=/var/lib/safeshare ./safeshare-macos-arm64
             ```
 
             The server starts on port `8000` by default.
@@ -119,16 +119,15 @@ jobs:
             |---|---|---|
             | `PORT` | `8000` | HTTP listen port |
             | `STORAGE_DIR` | `/tmp/e2eshare` | Upload storage directory |
-            | `LINK_TTL_DAYS` | `30` | Maximum share link lifetime in days (server-enforced) |
-            | `MAX_UPLOAD_MB` | `500` | Maximum upload size per file, in MB |
-            | `LOGO_URL` | _(blank)_ | Company logo URL |
+            | `LINK_TTL_DAYS` | `30` | Maximum share link lifetime in days |
+            | `LOGO_URL` | _(blank)_ | Company logo URL (proxied same-origin) |
             | `TITLE` | _(blank)_ | Company name shown in the UI |
 
             ### Docker
 
             ```bash
             docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-            docker run -p 8000:8000 -v /data/secureshare:/data \
+            docker run -p 8000:8000 -v /data/safeshare:/data \
               -e STORAGE_DIR=/data \
               ghcr.io/${{ github.repository }}:${{ github.ref_name }}
             ```
@@ -144,20 +143,20 @@ jobs:
     needs: build-binaries
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -168,7 +167,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -177,7 +176,7 @@ jobs:
             type=raw,value=latest
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/docker/Dockerfile
