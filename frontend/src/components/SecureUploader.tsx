@@ -4,7 +4,6 @@ import {
   Clock,
   Copy,
   FileText,
-  KeyRound,
   Lock,
   Plus,
   TriangleAlert,
@@ -22,18 +21,11 @@ import {
   wrapKey,
 } from "../lib/crypto";
 import { uploadEncrypted } from "../lib/uploader";
-import { encodeManifest, fmtSize, type Manifest, type ManifestItem } from "../lib/manifest";
+import { encodeManifest, fmtSize, type ManifestItem } from "../lib/manifest";
 import { formatExpiry } from "../lib/expiry";
 
 type Mode = "file" | "note";
 type Status = "idle" | "processing" | "done" | "error";
-type Protection = "link" | "passcode" | "unified";
-
-const PROTECTION_HINT: Record<Protection, string> = {
-  link: "Anyone with the link can open it.",
-  passcode: "Recipient needs the link and a separate passcode you share another way.",
-  unified: "One link with the passcode built in — convenient, but the link is everything.",
-};
 
 interface UploadState {
   name: string;
@@ -65,16 +57,21 @@ export function SecureUploader() {
   const [files, setFiles] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [expiry, setExpiry] = useState<ExpiryOption>("7d");
-  const [protection, setProtection] = useState<Protection>("link");
   const [status, setStatus] = useState<Status>("idle");
   const [uploadStates, setUploadStates] = useState<UploadState[]>([]);
-  const [shareUrl, setShareUrl] = useState("");
-  const [sharePasscode, setSharePasscode] = useState("");
-  const [passcodeCopied, setPasscodeCopied] = useState(false);
+
+  // After upload: unified link (all-in-one), bare link, and passcode separately
+  const [unifiedUrl, setUnifiedUrl] = useState("");
+  const [bareUrl, setBareUrl] = useState("");
+  const [passcode, setPasscode] = useState("");
+
+  const [copiedUnified, setCopiedUnified] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedPasscode, setCopiedPasscode] = useState(false);
+
   const [expiryLabel, setExpiryLabel] = useState<string | null>(null);
   const [expiryExpired, setExpiryExpired] = useState(false);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const addFileRef = useRef<HTMLInputElement>(null);
@@ -118,26 +115,16 @@ export function SecureUploader() {
         const id = await uploadEncrypted(
           encrypted,
           {
-            onProgress: (fraction) => {
-              setUploadStates([{ name: "note.txt", status: "active", progress: fraction }]);
-            },
+            onProgress: (f) => setUploadStates([{ name: "note.txt", status: "active", progress: f }]),
             onError: (e) => { throw e; },
           },
           { expiresAt },
         );
 
-        manifest.push({
-          id,
-          key: await exportKey(key),
-          name: "note.txt",
-          size: content.byteLength,
-          mime: "text/plain",
-          expiresAt,
-        });
+        manifest.push({ id, key: await exportKey(key), name: "note.txt", size: content.byteLength, mime: "text/plain", expiresAt });
         setUploadStates([{ name: "note.txt", status: "done", progress: 1 }]);
       } else {
-        const states: UploadState[] = files.map((f) => ({ name: f.name, status: "pending", progress: 0 }));
-        setUploadStates(states);
+        setUploadStates(files.map((f) => ({ name: f.name, status: "pending", progress: 0 })));
 
         for (let i = 0; i < files.length; i++) {
           const f = files[i];
@@ -145,71 +132,44 @@ export function SecureUploader() {
 
           const key = await generateKey();
           const content = await f.arrayBuffer();
-          const encrypted = await encryptPayload(
-            key,
-            f.name,
-            f.type || "application/octet-stream",
-            content,
-          );
+          const encrypted = await encryptPayload(key, f.name, f.type || "application/octet-stream", content);
 
           const id = await uploadEncrypted(
             encrypted,
             {
-              onProgress: (fraction) => {
-                setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fraction } : x));
-              },
+              onProgress: (fr) => setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fr } : x)),
               onError: (e) => { throw e; },
             },
             { expiresAt },
           );
 
-          manifest.push({
-            id,
-            key: await exportKey(key),
-            name: f.name,
-            size: f.size,
-            mime: f.type || "application/octet-stream",
-            expiresAt,
-          });
-
+          manifest.push({ id, key: await exportKey(key), name: f.name, size: f.size, mime: f.type || "application/octet-stream", expiresAt });
           setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "done", progress: 1 } : x));
         }
       }
 
-      // Build the share manifest. For passcode/unified, wrap each random file
-      // key with a key derived from a generated passcode (PBKDF2). Only
-      // encryption + keys ever touch the client — the server still stores only
-      // ciphertext and never sees the passcode or any key.
-      let envelope: Manifest;
-      let passcode = "";
-      if (protection === "link") {
-        envelope = { v: 2, protection: "none", items: manifest };
-      } else {
-        passcode = generatePasscode();
-        const salt = crypto.getRandomValues(new Uint8Array(16));
-        const kek = await derivePasscodeKey(passcode, salt);
-        const wrapped = await Promise.all(
-          manifest.map(async (it) => ({ ...it, key: await wrapKey(it.key, kek) })),
-        );
-        envelope = {
-          v: 2,
-          protection: "passcode",
-          kdf: { salt: b64urlEncode(salt), iterations: PBKDF2_ITERATIONS },
-          items: wrapped,
-        };
-      }
+      // Always wrap keys with a generated passcode (PBKDF2 + AES-KW)
+      const pc = generatePasscode();
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const kek = await derivePasscodeKey(pc, salt);
+      const wrapped = await Promise.all(
+        manifest.map(async (it) => ({ ...it, key: await wrapKey(it.key, kek) })),
+      );
+      const envelope = {
+        v: 2,
+        protection: "passcode" as const,
+        kdf: { salt: b64urlEncode(salt), iterations: PBKDF2_ITERATIONS },
+        items: wrapped,
+      };
 
       const encoded = encodeManifest(envelope);
-      let url = `${window.location.origin}/d/m#${encoded}`;
-      // Unified link bakes the passcode into the URL fragment (after "~") so the
-      // recipient needs only one link. Plain passcode mode keeps them apart.
-      if (protection === "unified") {
-        url += `~${b64urlEncode(new TextEncoder().encode(passcode))}`;
-      }
-      setShareUrl(url);
-      setSharePasscode(protection === "passcode" ? passcode : "");
+      const bare = `${window.location.origin}/d/m#${encoded}`;
+      const unified = `${bare}~${b64urlEncode(new TextEncoder().encode(pc))}`;
 
-      // Expiry is embedded in the manifest, no server round-trip needed
+      setBareUrl(bare);
+      setUnifiedUrl(unified);
+      setPasscode(pc);
+
       const { label, expired } = formatExpiry(expiresAt);
       setExpiryLabel(label);
       setExpiryExpired(expired);
@@ -221,16 +181,10 @@ export function SecureUploader() {
     }
   };
 
-  const copy = async () => {
-    await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const copyPasscode = async () => {
-    await navigator.clipboard.writeText(sharePasscode);
-    setPasscodeCopied(true);
-    setTimeout(() => setPasscodeCopied(false), 2000);
+  const makeCopier = (text: string, set: (v: boolean) => void) => async () => {
+    await navigator.clipboard.writeText(text);
+    set(true);
+    setTimeout(() => set(false), 2000);
   };
 
   const reset = () => {
@@ -238,11 +192,11 @@ export function SecureUploader() {
     setFiles([]);
     setNote("");
     setExpiry("7d");
-    setProtection("link");
     setStatus("idle");
     setUploadStates([]);
-    setShareUrl("");
-    setSharePasscode("");
+    setUnifiedUrl("");
+    setBareUrl("");
+    setPasscode("");
     setExpiryLabel(null);
     setError("");
     if (fileRef.current) fileRef.current.value = "";
@@ -257,12 +211,8 @@ export function SecureUploader() {
       {(status === "idle" || status === "error") && (
         <>
           <div className="mode-toggle">
-            <button className={mode === "file" ? "active" : ""} onClick={() => setMode("file")}>
-              Files
-            </button>
-            <button className={mode === "note" ? "active" : ""} onClick={() => setMode("note")}>
-              Note
-            </button>
+            <button className={mode === "file" ? "active" : ""} onClick={() => setMode("file")}>Files</button>
+            <button className={mode === "note" ? "active" : ""} onClick={() => setMode("note")}>Note</button>
           </div>
 
           {mode === "file" ? (
@@ -274,13 +224,7 @@ export function SecureUploader() {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={onDrop}
               >
-                <input
-                  ref={fileRef}
-                  type="file"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={(e) => addFiles(e.target.files)}
-                />
+                <input ref={fileRef} type="file" multiple style={{ display: "none" }} onChange={(e) => addFiles(e.target.files)} />
                 <div className="drop-hint">
                   <Upload size={20} className="drop-hint-icon" />
                   <strong>Drop files or click to browse</strong>
@@ -298,20 +242,12 @@ export function SecureUploader() {
                         <div className="fname">{f.name}</div>
                         <div className="fsize">{fmtSize(f.size)}</div>
                       </div>
-                      <button className="remove-btn" onClick={() => removeFile(i)}>
-                        <X size={13} />
-                      </button>
+                      <button className="remove-btn" onClick={() => removeFile(i)}><X size={13} /></button>
                     </div>
                   ))}
                 </div>
                 <button className="add-more-btn" title="Add more files to this share" onClick={() => addFileRef.current?.click()}>
-                  <input
-                    ref={addFileRef}
-                    type="file"
-                    multiple
-                    style={{ display: "none" }}
-                    onChange={(e) => addFiles(e.target.files)}
-                  />
+                  <input ref={addFileRef} type="file" multiple style={{ display: "none" }} onChange={(e) => addFiles(e.target.files)} />
                   <Plus size={12} /> Add more files
                 </button>
               </>
@@ -338,34 +274,12 @@ export function SecureUploader() {
             <span className="expiry-row-label">Expires after</span>
             <div className="expiry-options">
               {(Object.keys(EXPIRY_LABELS) as ExpiryOption[]).map((opt) => (
-                <button
-                  key={opt}
-                  className={`expiry-opt${expiry === opt ? " active" : ""}`}
-                  onClick={() => setExpiry(opt)}
-                >
+                <button key={opt} className={`expiry-opt${expiry === opt ? " active" : ""}`} onClick={() => setExpiry(opt)}>
                   {EXPIRY_LABELS[opt]}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Protection picker */}
-          <div className="expiry-row" style={{ marginBottom: 2 }}>
-            <KeyRound size={11} className="expiry-row-icon" />
-            <span className="expiry-row-label">Protect with</span>
-            <div className="expiry-options">
-              {(["link", "passcode", "unified"] as Protection[]).map((opt) => (
-                <button
-                  key={opt}
-                  className={`expiry-opt${protection === opt ? " active" : ""}`}
-                  onClick={() => setProtection(opt)}
-                >
-                  {opt === "link" ? "Link" : opt === "passcode" ? "Passcode" : "Unified link"}
-                </button>
-              ))}
-            </div>
-          </div>
-          <p className="protection-hint">{PROTECTION_HINT[protection]}</p>
 
           {status === "error" && (
             <div className="error-box" style={{ marginBottom: 8 }}>
@@ -391,9 +305,7 @@ export function SecureUploader() {
               <div className="upload-list-item" key={s.name}>
                 <div className={`upload-status-dot ${s.status}`} />
                 <span className="fname">{s.name}</span>
-                {s.status === "active" && (
-                  <span className="upload-progress-pct">{Math.round(s.progress * 100)}%</span>
-                )}
+                {s.status === "active" && <span className="upload-progress-pct">{Math.round(s.progress * 100)}%</span>}
               </div>
             ))}
           </div>
@@ -403,43 +315,38 @@ export function SecureUploader() {
 
       {status === "done" && (
         <div className="status-block">
-          <div className="status-icon success">
-            <CheckCheck size={17} />
-          </div>
+          <div className="status-icon success"><CheckCheck size={17} /></div>
           <h2 className="section-heading">
             {uploadStates.length > 1 ? `${uploadStates.length} files ready to share` : "Ready to share"}
           </h2>
-          <div className="url-row">
-            <input
-              readOnly
-              className="url-input"
-              value={shareUrl}
-              onClick={(e) => (e.target as HTMLInputElement).select()}
-            />
-            <button className={`btn-copy${copied ? " copied" : ""}`} onClick={copy}>
-              {copied ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
-            </button>
+
+          {/* Option 1: all-in-one link */}
+          <div className="share-section">
+            <span className="share-section-label">Single link</span>
+            <div className="url-row">
+              <input readOnly className="url-input" value={unifiedUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
+              <button className={`btn-copy${copiedUnified ? " copied" : ""}`} onClick={makeCopier(unifiedUrl, setCopiedUnified)}>
+                {copiedUnified ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
+              </button>
+            </div>
           </div>
 
-          {/* Separate passcode — only in plain passcode mode */}
-          {sharePasscode && (
-            <>
-              <span className="eyebrow" style={{ marginTop: 6, marginBottom: 4 }}>
-                Passcode — send this through a different channel
-              </span>
-              <div className="url-row">
-                <input
-                  readOnly
-                  className="url-input passcode-input"
-                  value={sharePasscode}
-                  onClick={(e) => (e.target as HTMLInputElement).select()}
-                />
-                <button className={`btn-copy${passcodeCopied ? " copied" : ""}`} onClick={copyPasscode}>
-                  {passcodeCopied ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Copy</>}
-                </button>
-              </div>
-            </>
-          )}
+          {/* Option 2: link + passcode separately */}
+          <div className="share-section">
+            <span className="share-section-label">Or send separately</span>
+            <div className="url-row" style={{ marginBottom: 6 }}>
+              <input readOnly className="url-input" value={bareUrl} onClick={(e) => (e.target as HTMLInputElement).select()} />
+              <button className={`btn-copy${copiedLink ? " copied" : ""}`} onClick={makeCopier(bareUrl, setCopiedLink)}>
+                {copiedLink ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Link</>}
+              </button>
+            </div>
+            <div className="url-row">
+              <input readOnly className="url-input passcode-display" value={passcode} onClick={(e) => (e.target as HTMLInputElement).select()} />
+              <button className={`btn-copy${copiedPasscode ? " copied" : ""}`} onClick={makeCopier(passcode, setCopiedPasscode)}>
+                {copiedPasscode ? <><CheckCheck size={11} /> Copied</> : <><Copy size={11} /> Code</>}
+              </button>
+            </div>
+          </div>
 
           {expiryLabel && (
             <div className={`expiry-badge${expiryExpired ? " expired" : ""}`}>
@@ -450,9 +357,7 @@ export function SecureUploader() {
           <div className="notice">
             <TriangleAlert size={12} />
             <span>
-              {protection === "passcode"
-                ? `The link is useless without the passcode. Send the link and the passcode through different channels for the file${uploadStates.length > 1 ? "s" : ""} to stay private.`
-                : `The decryption key is in this link. Anyone with it can read the file${uploadStates.length > 1 ? "s" : ""}. Share over a trusted channel.`}
+              For maximum privacy, send the link and passcode through different channels. Anyone with both can read the file{uploadStates.length > 1 ? "s" : ""}.
             </span>
           </div>
           <button className="btn-ghost" onClick={reset}>Share another</button>

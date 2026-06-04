@@ -1,30 +1,46 @@
 /* Design tokens */
 :root {
+  /* Surfaces */
   --bone:     #f9f7f5;
-  --cream:    #f4ecde;
-  --stone:    #ebe3d5;
-  --pebble:   #d4cabc;
-  --ash:      #a89c8e;
-  --flint:    #736759;
-  --charcoal: #4a3c2e;
-  --ink:      #1e150e;
+  --cream:    #f2e8d9;
+  --stone:    #e8dfd2;
+  --pebble:   #cec3b4;
 
-  --espresso-light: #baa698;
-  --espresso:       #704b30;
-  --espresso-dark:  #5d3c24;
+  /* Text */
+  --ash:      #8c7f72;
+  --flint:    #5e5047;
+  --charcoal: #3a2d22;
+  --ink:      #1a1008;
 
-  --destructive: #ba381b;
-  --success-bg:  #e9f6e9;
-  --success-fg:  #2d6a2d;
-  --success-br:  #c3ddc3;
+  /* Brand */
+  --espresso-light: #a8917f;
+  --espresso:       #6b4226;
+  --espresso-dark:  #532f18;
 
+  /* Status */
+  --destructive: #b03010;
+  --success-bg:  #e6f4e6;
+  --success-fg:  #246024;
+  --success-br:  #b8d8b8;
+
+  /* Radius */
   --r-xs: 4px;
-  --r-sm: 6px;
-  --r-md: 8px;
-  --r-lg: 12px;
+  --r-sm: 7px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  /* Typography scale */
+  --text-2xs:  0.6875rem;  /* 11px — captions, badges */
+  --text-xs:   0.75rem;    /* 12px — meta, eyebrows */
+  --text-sm:   0.875rem;   /* 14px — body secondary */
+  --text-base: 1rem;       /* 16px — body primary */
+  --text-md:   1.0625rem;  /* 17px */
+  --text-lg:   1.25rem;    /* 20px */
+  --text-xl:   1.625rem;   /* 26px */
+  --text-2xl:  1.875rem;   /* 30px — headings */
 
   font-family: "Geist Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -75,36 +91,38 @@ body {
 
 .card-heading {
   font-family: "Freight Display Pro", "Playfair Display", Georgia, serif;
-  font-size: 1.625rem;
-  font-weight: 300;
+  font-size: var(--text-2xl);
+  font-weight: 400;
   color: var(--ink);
   letter-spacing: -0.02em;
   line-height: 1.2;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .card-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .card-subtitle {
-  font-size: 0.8125rem;
-  color: var(--flint);
-  line-height: 1.55;
+  font-size: var(--text-sm);
+  color: var(--charcoal);
+  line-height: 1.6;
   margin-bottom: 32px;
 }
 
 /* Eyebrow labels */
 
 .eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ash);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--flint);
   margin-bottom: 8px;
   display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* Mode toggle */
@@ -126,7 +144,7 @@ body {
   border-radius: calc(var(--r-sm) - 2px);
   background: transparent;
   color: var(--flint);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -166,13 +184,13 @@ body {
   align-items: center;
   gap: 8px;
   color: var(--flint);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
 }
 
 .drop-hint-icon { color: var(--ash); margin-bottom: 2px; }
 
 .drop-hint strong {
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--ink);
 }
@@ -209,7 +227,7 @@ body {
 .file-list-item .row-body { flex: 1; min-width: 0; }
 
 .file-list-item .fname {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -218,7 +236,7 @@ body {
 }
 
 .file-list-item .fsize {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--flint);
   margin-top: 2px;
 }
@@ -249,7 +267,7 @@ body {
   border: 1px dashed var(--pebble);
   border-radius: var(--r-xs);
   color: var(--flint);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -284,7 +302,7 @@ body {
 
 .upload-list-item .fname {
   flex: 1;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ink);
   overflow: hidden;
@@ -305,7 +323,7 @@ body {
 .upload-status-dot.done    { background: var(--success-fg); }
 
 .upload-progress-pct {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--ash);
   flex-shrink: 0;
@@ -325,7 +343,7 @@ body {
   border-radius: var(--r-sm);
   padding: 13px 14px;
   color: var(--ink);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   resize: vertical;
   margin-bottom: 6px;
@@ -355,7 +373,7 @@ body {
 .expiry-row-icon { color: var(--ash); flex-shrink: 0; }
 
 .expiry-row-label {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--flint);
   white-space: nowrap;
   font-weight: 500;
@@ -373,7 +391,7 @@ body {
   border: 1px solid var(--pebble);
   border-radius: var(--r-xs);
   color: var(--flint);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -389,6 +407,31 @@ body {
   color: var(--bone);
 }
 
+/* Share sections (result state) */
+
+.share-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.share-section-label {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  color: var(--ash);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.passcode-display {
+  font-family: "SF Mono", ui-monospace, "Cascadia Mono", monospace;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.08em;
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
 /* Primary CTA button */
 
 .btn-primary {
@@ -402,7 +445,7 @@ body {
   color: var(--bone);
   border: none;
   border-radius: var(--r-sm);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -435,7 +478,7 @@ body {
   color: var(--ink);
   border: 1px solid var(--pebble);
   border-radius: var(--r-xs);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -454,7 +497,7 @@ body {
   color: var(--flint);
   border: none;
   border-radius: var(--r-xs);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -472,7 +515,7 @@ body {
   color: var(--ink);
   border: 1px solid var(--pebble);
   border-radius: var(--r-xs);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -498,7 +541,7 @@ body {
   color: var(--flint);
   border: 1px solid var(--pebble);
   border-radius: var(--r-xs);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -527,13 +570,13 @@ body {
 .trust-anchor-body { display: flex; flex-direction: column; gap: 2px; }
 
 .trust-anchor-body strong {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--success-fg);
 }
 
 .trust-anchor-body span {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--flint);
   line-height: 1.45;
 }
@@ -541,7 +584,7 @@ body {
 /* Protection picker + passcode */
 
 .protection-hint {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--ash);
   margin: 4px 0 2px;
   line-height: 1.4;
@@ -561,7 +604,7 @@ body {
   padding: 11px 13px;
   margin-bottom: 10px;
   color: var(--ink);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   font-family: "SF Mono", ui-monospace, "Cascadia Mono", monospace;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -588,7 +631,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--flint);
   text-decoration: none;
@@ -624,7 +667,7 @@ body {
 }
 
 .how-step-body h3 {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: 2px;
@@ -632,7 +675,7 @@ body {
 }
 
 .how-step-body p {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--flint);
   line-height: 1.55;
 }
@@ -648,7 +691,7 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: 12px;
@@ -663,7 +706,7 @@ body {
 }
 
 .how-summary-label {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -681,7 +724,7 @@ body {
 }
 
 .how-summary-cols li {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--flint);
   line-height: 1.4;
   padding-left: 12px;
@@ -721,7 +764,7 @@ body {
   color: var(--ash);
   border: none;
   border-radius: var(--r-xs);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -743,7 +786,7 @@ body {
 }
 
 .delete-confirm-text {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--destructive);
   line-height: 1.5;
   text-align: left;
@@ -765,7 +808,7 @@ body {
   color: #fff;
   border: none;
   border-radius: var(--r-xs);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -786,13 +829,13 @@ body {
 }
 
 .status-label {
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--ink);
 }
 
 .status-hint {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--flint);
   line-height: 1.55;
   max-width: 360px;
@@ -849,7 +892,7 @@ body {
   border-radius: var(--r-xs);
   padding: 8px 12px;
   color: var(--flint);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-family: "SF Mono", ui-monospace, "Cascadia Mono", monospace;
   outline: none;
   min-width: 0;
@@ -861,7 +904,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--flint);
   background: var(--stone);
   border: 1px solid var(--pebble);
@@ -875,7 +918,7 @@ body {
 
 .notice {
   width: 100%;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--flint);
   background: var(--stone);
   border: 1px solid var(--pebble);
@@ -897,7 +940,7 @@ body {
   border: 1px solid #f4c4b8;
   border-radius: var(--r-sm);
   color: var(--destructive);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   display: flex;
   gap: 8px;
   align-items: flex-start;
@@ -936,7 +979,7 @@ body {
 .download-file-item .file-meta { flex: 1; min-width: 0; }
 
 .download-file-item .fname {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -945,7 +988,7 @@ body {
 }
 
 .download-file-item .fsize {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--flint);
   margin-top: 2px;
 }
@@ -967,7 +1010,7 @@ body {
 .file-card-meta { flex: 1; min-width: 0; }
 
 .file-card .fname {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -975,7 +1018,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.file-card .fsize { font-size: 0.6875rem; color: var(--flint); margin-top: 3px; }
+.file-card .fsize { font-size: var(--text-2xs); color: var(--flint); margin-top: 3px; }
 
 /* Note preview */
 
@@ -986,7 +1029,7 @@ body {
   border-radius: var(--r-sm);
   padding: 13px 14px;
   color: var(--ink);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   resize: vertical;
   outline: none;
@@ -997,7 +1040,7 @@ body {
 /* Section heading */
 
 h2.section-heading {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.01em;
@@ -1022,7 +1065,7 @@ h2.section-heading {
 }
 
 .section-divider span {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1032,6 +1075,6 @@ h2.section-heading {
 @media (max-width: 540px) {
   .page { padding: 16px; }
   .card { padding: 28px 24px 24px; }
-  .card-heading { font-size: 1.375rem; }
+  .card-heading { font-size: var(--text-xl); }
   .expiry-row { gap: 8px; }
 }
