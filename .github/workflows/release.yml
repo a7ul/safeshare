@@ -103,7 +103,7 @@ jobs:
             **macOS & Linux — one command:**
 
             ```bash
-            curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/run.sh | sh
+            curl -fsSL https://raw.githubusercontent.com/a7ul/safeshare/main/run.sh | sh
             ```
 
             Or download the binary for your platform directly:
