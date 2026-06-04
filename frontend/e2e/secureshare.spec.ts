@@ -4,8 +4,8 @@ test.describe("Upload page", () => {
   test("loads correctly and shows the drop zone and mode toggle", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "Share files, notes and secrets securely." })).toBeVisible();
-    await expect(page.getByText("End-to-end encrypted")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Share anything/i })).toBeVisible();
+    await expect(page.getByText(/Encrypted in your browser/i)).toBeVisible();
     await expect(page.getByRole("button", { name: "Files" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Note" })).toBeVisible();
     await expect(page.getByText("Drop files or click to browse")).toBeVisible();
@@ -67,20 +67,20 @@ test.describe("Upload page", () => {
 
   test("security messaging is visible", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText(/encrypted between your browser/i)).toBeVisible();
+    await expect(page.getByText(/Encrypted in your browser/i)).toBeVisible();
   });
 });
 
 test.describe("Download page — error states", () => {
   test("shows error when no hash is present in the URL", async ({ page }) => {
     await page.goto("/d/m");
-    await expect(page.getByRole("heading", { name: "Something went wrong." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Unable to open this link." })).toBeVisible();
     await expect(page.getByText(/No decryption key found in the URL/i)).toBeVisible();
   });
 
   test("shows error box with helpful message on invalid hash", async ({ page }) => {
     await page.goto("/d/m#notavalidhash");
-    await expect(page.getByRole("heading", { name: "Something went wrong." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Unable to open this link." })).toBeVisible();
     await expect(page.locator(".error-box")).toBeVisible();
   });
 
@@ -92,7 +92,7 @@ test.describe("Download page — error states", () => {
   test("navigating from download error page back to upload page works", async ({ page }) => {
     await page.goto("/d/m");
     await page.getByRole("link", { name: /Share your own file securely/i }).click();
-    await expect(page.getByRole("heading", { name: "Share files, notes and secrets securely." })).toBeVisible({ timeout: 8000 });
+    await expect(page.getByRole("heading", { name: /Share anything/i })).toBeVisible({ timeout: 8000 });
   });
 });
 
@@ -165,6 +165,6 @@ test.describe("Download page — delete", () => {
     await page.getByRole("button", { name: /Delete this link/i }).click();
     await page.getByRole("button", { name: /Delete forever/i }).click();
 
-    await expect(page.getByRole("heading", { name: "Link deleted." })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole("heading", { name: "Deleted." })).toBeVisible({ timeout: 5000 });
   });
 });
