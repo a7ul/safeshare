@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: secureshare-data
+  namespace: secureshare
+spec:
+  accessModes:
+    - ReadWriteOnce    # Use ReadWriteMany (NFS/EFS/GCS) for multi-replica
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard  # Replace with your cloud provider's storage class
+  # GKE:  standard-rwo
+  # EKS:  gp2
+  # AKS:  managed-premium

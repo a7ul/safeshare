@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secureshare
+  namespace: secureshare
+  labels:
+    app: secureshare
+spec:
+  replicas: 1   # Must stay 1 with ReadWriteOnce PVC. Increase with ReadWriteMany storage.
+  selector:
+    matchLabels:
+      app: secureshare
+  template:
+    metadata:
+      labels:
+        app: secureshare
+    spec:
+      containers:
+        - name: secureshare
+          image: ghcr.io/a7ul/secureshare:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: secureshare-config
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /api/config
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/config
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: secureshare-data

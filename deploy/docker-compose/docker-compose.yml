@@ -1,0 +1,28 @@
+services:
+  secureshare:
+    image: ghcr.io/a7ul/secureshare:latest
+    # Or build locally:
+    # build:
+    #   context: ../../
+    #   dockerfile: deploy/docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      STORAGE_DIR: /data
+      LINK_TTL_DAYS: "7"
+      # Optional branding
+      # LOGO_URL: "https://example.com/logo.png"
+      # TITLE: "Acme Corp"
+    volumes:
+      - uploads:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/api/config"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  uploads:

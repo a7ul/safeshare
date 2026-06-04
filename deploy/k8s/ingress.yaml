@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secureshare
+  namespace: secureshare
+  annotations:
+    # cert-manager (Let's Encrypt TLS)
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # Nginx — allow large uploads and slow TUS connections
+    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - share.example.com   # Replace with your domain
+      secretName: secureshare-tls
+  rules:
+    - host: share.example.com  # Replace with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: secureshare
+                port:
+                  number: 80
