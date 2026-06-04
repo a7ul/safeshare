@@ -1,5 +1,6 @@
-import { HelpCircle, Lock } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { SecureUploader } from "../components/SecureUploader";
+import { BrandRow } from "../components/BrandRow";
 import { useConfig } from "../hooks/useConfig";
 
 export function UploadPage() {
@@ -8,12 +9,7 @@ export function UploadPage() {
   return (
     <div className="page">
       <div className="card">
-        <div className="brand-row">
-          {logoUrl
-            ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" />
-            : <Lock size={14} className="brand-icon" />}
-          {title && <span className="card-title">{title}</span>}
-        </div>
+        <BrandRow logoUrl={logoUrl} title={title} />
         <h1 className="card-heading">Share files, notes and secrets securely.</h1>
         <p className="card-subtitle">End-to-end encrypted between your browser and the receiver. No information is visible to the server.</p>
         <SecureUploader />

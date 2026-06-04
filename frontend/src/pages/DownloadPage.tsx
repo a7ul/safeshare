@@ -22,6 +22,7 @@ import {
 import { decodeManifest, fmtSize, type Manifest, type ManifestItem } from "../lib/manifest";
 import { fetchExpiry, formatExpiry } from "../lib/expiry";
 import { useConfig } from "../hooks/useConfig";
+import { BrandRow } from "../components/BrandRow";
 
 type PageStatus = "loading" | "decrypting" | "ready" | "error" | "deleted" | "passcode";
 type FileStatus = "idle" | "downloading" | "done";
@@ -267,12 +268,7 @@ export function DownloadPage() {
     <div className="page">
       <div className="card">
         {/* Header */}
-        <div className="brand-row">
-          {logoUrl
-            ? <img src={logoUrl} alt={title ?? ""} className="brand-logo" />
-            : <Lock size={14} className="brand-icon" />}
-          {title && <span className="card-title">{title}</span>}
-        </div>
+        <BrandRow logoUrl={logoUrl} title={title} />
 
         {/* ── Loading ── */}
         {(pageStatus === "loading" || pageStatus === "decrypting") && (

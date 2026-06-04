@@ -38,12 +38,34 @@ app.use(
   }),
 );
 
-// Runtime config (logo URL, etc.)
+const LOGO_URL = Deno.env.get("LOGO_URL") ?? null;
+
+// Runtime config — logo is served via /api/logo so the browser
+// always loads it same-origin (no mixed-content or referrer issues)
 app.get("/api/config", (c) => {
   return c.json({
-    logoUrl: Deno.env.get("LOGO_URL") ?? null,
+    logoUrl: LOGO_URL ? "/api/logo" : null,
     title: Deno.env.get("TITLE") ?? null,
   });
+});
+
+// Proxy the logo so external URLs load without referrer/CORS problems
+app.get("/api/logo", async (c) => {
+  if (!LOGO_URL) return c.text("Not Found", 404);
+  try {
+    const res = await fetch(LOGO_URL);
+    if (!res.ok) return c.text("Not Found", 404);
+    const contentType = res.headers.get("Content-Type") ?? "image/png";
+    const body = await res.arrayBuffer();
+    return new Response(body, {
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
+  } catch {
+    return c.text("Not Found", 404);
+  }
 });
 
 // TUS upload endpoints
