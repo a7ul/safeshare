@@ -24,7 +24,7 @@
 
 ## Try it locally
 
-**macOS & Linux — one command:**
+**macOS & Linux, one command:**
 
 ```bash
 curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/run.sh | sh
@@ -67,11 +67,11 @@ echo "SafeShare → http://localhost:8000"
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/upload.png" width="420" alt="Upload screen — drop files or pick an expiry">
-  <img src="docs/screenshots/note-tab.png" width="420" alt="Note tab — type a secret note">
+  <img src="docs/screenshots/upload.png" width="420" alt="Upload screen: drop files or pick an expiry">
+  <img src="docs/screenshots/note-tab.png" width="420" alt="Note tab: type a secret note">
 </p>
 <p align="center">
-  <img src="docs/screenshots/share-result.png" width="420" alt="Share result — unified link or link + passcode separately">
+  <img src="docs/screenshots/share-result.png" width="420" alt="Share result: unified link or link and passcode separately">
   <img src="docs/screenshots/how-it-works.png" width="420" alt="How it works page">
 </p>
 
@@ -88,7 +88,7 @@ flowchart LR
     D -->|"unwrap key → decrypt → save"| E[Plaintext on disk]
 ```
 
-Files are encrypted in your browser using **AES-256-GCM** before upload. The file key is wrapped with **AES-KW** using a **PBKDF2**-derived key from a random passcode. The server stores only opaque bytes — it cannot decrypt anything even with full disk access.
+Files are encrypted in your browser using **AES-256-GCM** before upload. The file key is wrapped with **AES-KW** using a **PBKDF2**-derived key from a random passcode. The server stores only opaque bytes. It cannot decrypt anything even with full disk access.
 
 The decryption key and passcode live exclusively in the **URL fragment**, which browsers never transmit in HTTP requests.
 
@@ -157,7 +157,7 @@ docker run -p 8000:8000 -v /data/safeshare:/data \
 | `PORT` | `8000` | HTTP port |
 | `STORAGE_DIR` | `/tmp/e2eshare` | Where encrypted uploads are stored |
 | `LINK_TTL_DAYS` | `30` | Maximum share link lifetime in days (server-enforced cap) |
-| `LOGO_URL` | _(blank)_ | Company logo URL — proxied through `/api/logo` same-origin |
+| `LOGO_URL` | _(blank)_ | Company logo URL, proxied through `/api/logo` same-origin |
 | `TITLE` | _(blank)_ | Company name shown next to the logo |
 
 ## Running locally
@@ -170,10 +170,10 @@ docker run -p 8000:8000 -v /data/safeshare:/data \
 ### Development (hot reload)
 
 ```bash
-# Terminal 1 — Deno backend with file watching
+# Terminal 1: Deno backend with file watching
 deno task dev
 
-# Terminal 2 — Vite frontend dev server with HMR at :5173
+# Terminal 2: Vite frontend dev server with HMR at :5173
 cd frontend && npm run dev
 ```
 
@@ -228,7 +228,7 @@ echo '{"lifecycle":{"rule":[{"action":{"type":"Delete"},"condition":{"age":7}}]}
 gcloud storage buckets update gs://my-safeshare --lifecycle-file=lc.json
 ```
 
-Mount the bucket via the Cloud Storage FUSE CSI driver — objects are auto-deleted after `LINK_TTL_DAYS` days with no cron job needed. See [deploy/k8s/README.md](deploy/k8s/README.md).
+Mount the bucket via the Cloud Storage FUSE CSI driver. Objects are auto-deleted after `LINK_TTL_DAYS` days with no cron job needed. See [deploy/k8s/README.md](deploy/k8s/README.md).
 
 ## Cutting a release
 
@@ -237,7 +237,7 @@ Mount the bucket via the Cloud Storage FUSE CSI driver — objects are auto-dele
 # 2. Commit and push
 git add deno.json && git commit -m "chore: bump version to X.Y.Z" && git push
 
-# 3. Tag — triggers the release workflow (binaries + Docker image)
+# 3. Tag: triggers the release workflow (binaries + Docker image)
 git tag vX.Y.Z && git push origin vX.Y.Z
 ```
 
@@ -245,7 +245,7 @@ git tag vX.Y.Z && git push origin vX.Y.Z
 
 - **The server never sees plaintext.** All crypto runs in the browser via the Web Crypto API. The server has zero crypto code.
 - **Two layers of protection.** AES-256-GCM file encryption + PBKDF2/AES-KW key wrapping means the server cannot decrypt stored blobs even with full disk access.
-- **URL fragment privacy.** The passcode and manifest travel in the `#` fragment, which browsers strip before sending HTTP requests and CDNs do not log. They are visible in browser history — use "share separately" to send link and passcode via different channels for maximum privacy.
+- **URL fragment privacy.** The passcode and manifest travel in the `#` fragment, which browsers strip before sending HTTP requests and CDNs do not log. They are visible in browser history. Use "share separately" to send link and passcode via different channels for maximum privacy.
 - **Server-enforced expiry.** The server returns HTTP 410 for expired links regardless of the client manifest.
 - **No authentication.** Anyone with the link (and passcode) can decrypt. Add ingress-level rate limiting for public deployments.
 
@@ -253,7 +253,7 @@ git tag vX.Y.Z && git push origin vX.Y.Z
 
 ```
 safeshare/
-  main.ts                      Deno/Hono server — API, logo proxy, static serving
+  main.ts                      Deno/Hono server: API, logo proxy, static serving
   src/
     tus.ts                     TUS handler (reads expiry from Upload-Metadata)
     storage.ts                 Blob storage (STORAGE_DIR, server-side TTL cap)
@@ -292,4 +292,4 @@ safeshare/
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
