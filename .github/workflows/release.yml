@@ -82,6 +82,7 @@ jobs:
         run: |
           mkdir -p release
           find dist/ -type f -exec cp {} release/ \;
+          cp run.sh release/run.sh
           ls -lh release/
 
       - name: Extract version from tag
@@ -99,19 +100,25 @@ jobs:
 
             ### Install
 
-            Download the binary for your platform, make it executable, and run:
+            **macOS & Linux — one command:**
+
+            ```bash
+            curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/run.sh | sh
+            ```
+
+            Or download the binary for your platform directly:
 
             ```bash
             # Linux (x64)
-            chmod +x safeshare-linux-x64
-            STORAGE_DIR=/var/lib/safeshare ./safeshare-linux-x64
+            curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/safeshare-linux-x64 \
+              -o safeshare && chmod +x safeshare && ./safeshare
 
             # macOS (Apple Silicon)
-            chmod +x safeshare-macos-arm64
-            STORAGE_DIR=/var/lib/safeshare ./safeshare-macos-arm64
+            curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/safeshare-macos-arm64 \
+              -o safeshare && chmod +x safeshare && ./safeshare
             ```
 
-            The server starts on port `8000` by default.
+            The server starts on port `8000` by default. Visit http://localhost:8000 to start sharing.
 
             ### Environment variables
 

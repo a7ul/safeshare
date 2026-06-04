@@ -22,6 +22,48 @@
 
 ---
 
+## Try it locally
+
+**macOS & Linux — one command:**
+
+```bash
+curl -fsSL https://github.com/a7ul/safeshare/releases/latest/download/run.sh | sh
+```
+
+That script detects your platform, downloads the right pre-built binary from the latest release, and starts the server. When it's running you'll see:
+
+```
+SafeShare → http://localhost:8000
+```
+
+Open that link and start sharing. No Deno, no Node, no Docker required.
+
+<details>
+<summary>What the script does</summary>
+
+```sh
+#!/usr/bin/env sh
+set -e
+OS=$(uname -s)
+ARCH=$(uname -m)
+case "${OS}-${ARCH}" in
+  Darwin-arm64)  BIN=safeshare-macos-arm64 ;;
+  Darwin-x86_64) BIN=safeshare-macos-x64   ;;
+  Linux-x86_64)  BIN=safeshare-linux-x64   ;;
+  Linux-aarch64) BIN=safeshare-linux-arm64  ;;
+  *) echo "Unsupported platform: ${OS}-${ARCH}"; exit 1 ;;
+esac
+BASE=https://github.com/a7ul/safeshare/releases/latest/download
+curl -fsSL "${BASE}/${BIN}" -o safeshare
+chmod +x safeshare
+echo "SafeShare → http://localhost:8000"
+./safeshare
+```
+
+</details>
+
+---
+
 ## Screenshots
 
 <p align="center">
