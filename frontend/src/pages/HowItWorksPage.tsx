@@ -103,6 +103,16 @@ export function HowItWorksPage() {
           Technically: AES-256-GCM encryption via the Web Crypto API, run entirely in your browser. The server has no decryption code. Even if it obtained the key, it could not read the data.
         </p>
 
+        <div className="open-source-note">
+          <p>
+            Powered by open source code at{" "}
+            <a href="https://github.com/a7ul/safeshare" target="_blank" rel="noopener noreferrer" className="open-source-link">
+              a7ul/safeshare
+            </a>
+            . The code is intentionally open source so anyone can verify the security of it.
+          </p>
+        </div>
+
         <div className="card-footer">
           <a href="/" className="btn-outline" style={{ textDecoration: "none" }}>
             <Lock size={13} /> Share something securely
