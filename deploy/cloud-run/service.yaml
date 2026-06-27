@@ -1,0 +1,55 @@
+# Cloud Run service for SecureShare with the GCS storage backend.
+#
+# This is the configuration that fixes multi-instance upload failures: with
+# STORAGE_BACKEND=gcs, TUS upload state lives in a shared bucket, so it no longer
+# matters which instance a given upload chunk is routed to.
+#
+# Deploy:
+#   gcloud run services replace deploy/cloud-run/service.yaml --region=YOUR_REGION
+#
+# Prerequisites:
+#   1. A GCS bucket:           gsutil mb -l YOUR_REGION gs://YOUR_BUCKET
+#   2. The service account below has object admin on it:
+#        gsutil iam ch serviceAccount:YOUR_SA@PROJECT.iam.gserviceaccount.com:roles/storage.objectAdmin gs://YOUR_BUCKET
+#   3. (Optional) a lifecycle rule on the bucket to auto-purge expired uploads.
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: secureshare
+  labels:
+    cloud.googleapis.com/location: YOUR_REGION
+spec:
+  template:
+    metadata:
+      annotations:
+        # Keep at least one warm instance so resumable sessions are not lost to
+        # scale-to-zero mid-upload. Scale up freely — storage is shared.
+        autoscaling.knative.dev/minScale: "1"
+        # Allow long uploads/downloads of large encrypted blobs.
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      # Session affinity is intentionally NOT required — the GCS backend makes
+      # every instance able to serve any chunk of any upload.
+      containerConcurrency: 80
+      timeoutSeconds: 3600
+      serviceAccountName: YOUR_SA@PROJECT.iam.gserviceaccount.com
+      containers:
+        - image: ghcr.io/a7ul/secureshare:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: STORAGE_BACKEND
+              value: "gcs"
+            - name: GCS_BUCKET
+              value: "YOUR_BUCKET"
+            - name: GCS_PREFIX
+              value: "secureshare/"
+            - name: LINK_TTL_DAYS
+              value: "7"
+            - name: MAX_UPLOAD_MB
+              value: "500"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
