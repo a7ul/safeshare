@@ -11,9 +11,14 @@ const TUS_VERSION = "1.0.0";
 
 // Max upload size, configurable via MAX_UPLOAD_MB (default 500 MB).
 const MAX_UPLOAD_MB = parseInt(Deno.env.get("MAX_UPLOAD_MB") ?? "500", 10);
+// Client-side streaming encryption adds a small per-chunk overhead (12-byte IV +
+// 16-byte GCM tag + length prefix per record). For a 500 MB file that is only a
+// few KB, but it pushes a file at exactly the plaintext limit just over the byte
+// ceiling. Allow 8 MB of headroom so the advertised limit stays honest.
+const OVERHEAD_HEADROOM = 8 * 1024 * 1024;
 const MAX_SIZE =
   (Number.isFinite(MAX_UPLOAD_MB) && MAX_UPLOAD_MB > 0 ? MAX_UPLOAD_MB : 500) *
-  1024 * 1024;
+    1024 * 1024 + OVERHEAD_HEADROOM;
 
 function parseTusMetadata(header: string): Record<string, string> {
   const result: Record<string, string> = {};

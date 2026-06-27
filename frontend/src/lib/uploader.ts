@@ -10,14 +10,14 @@ export interface UploadOptions {
 }
 
 export function uploadEncrypted(
-  data: ArrayBuffer,
+  data: Blob,
   callbacks: UploadCallbacks,
   opts: UploadOptions,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const blob = new Blob([data], { type: "application/octet-stream" });
-
-    const upload = new Upload(blob, {
+    // `data` is already an encrypted Blob (streamed for files, single-shot for
+    // notes). tus-js-client reads it lazily in chunks — no full-file copy here.
+    const upload = new Upload(data, {
       endpoint: "/upload",
       chunkSize: 5 * 1024 * 1024,
       retryDelays: [0, 1000, 3000, 5000],

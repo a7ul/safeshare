@@ -13,6 +13,7 @@ import { BrandRow } from "./BrandRow";
 import {
   b64urlEncode,
   derivePasscodeKey,
+  encryptFileToBlob,
   encryptPayload,
   exportKey,
   generateKey,
@@ -116,10 +117,11 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
         const key = await generateKey();
         const content = new TextEncoder().encode(note).buffer as ArrayBuffer;
         const encrypted = await encryptPayload(key, "note.txt", "text/plain", content);
+        const encryptedBlob = new Blob([encrypted], { type: "application/octet-stream" });
         setUploadStates([{ name: "note.txt", status: "active", progress: 0 }]);
 
         const id = await uploadEncrypted(
-          encrypted,
+          encryptedBlob,
           {
             onProgress: (f) => setUploadStates([{ name: "note.txt", status: "active", progress: f }]),
             onError: (e) => { throw e; },
@@ -137,19 +139,29 @@ export function SecureUploader({ logoUrl, title, onDone, onReset }: SecureUpload
           setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "active", progress: 0 } : x));
 
           const key = await generateKey();
-          const content = await f.arrayBuffer();
-          const encrypted = await encryptPayload(key, f.name, f.type || "application/octet-stream", content);
+          const mime = f.type || "application/octet-stream";
+          // Stream-encrypt the file in chunks. Peak memory stays ~one chunk
+          // instead of ~4× the file size, so 300–500 MB files no longer stall
+          // or crash the tab. Encryption fills the first 50% of the progress
+          // bar, the upload the second 50%.
+          const encryptedBlob = await encryptFileToBlob(
+            key,
+            f.name,
+            mime,
+            f,
+            (fr) => setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fr * 0.5 } : x)),
+          );
 
           const id = await uploadEncrypted(
-            encrypted,
+            encryptedBlob,
             {
-              onProgress: (fr) => setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: fr } : x)),
+              onProgress: (fr) => setUploadStates((s) => s.map((x, j) => j === i ? { ...x, progress: 0.5 + fr * 0.5 } : x)),
               onError: (e) => { throw e; },
             },
             { expiresAt },
           );
 
-          manifest.push({ id, key: await exportKey(key), name: f.name, size: f.size, mime: f.type || "application/octet-stream", expiresAt });
+          manifest.push({ id, key: await exportKey(key), name: f.name, size: f.size, mime, expiresAt });
           setUploadStates((s) => s.map((x, j) => j === i ? { ...x, status: "done", progress: 1 } : x));
         }
       }

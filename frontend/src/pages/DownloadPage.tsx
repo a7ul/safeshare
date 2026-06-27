@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import {
   b64urlDecode,
-  decryptPayload,
+  decryptToBlob,
   derivePasscodeKey,
   importKey,
   unwrapKey,
@@ -60,13 +60,12 @@ export function DownloadPage() {
         const item = rawItems[0];
         const res = await fetch(`/api/files/${item.id}`);
         if (!cancelRef.current && res.ok) {
-          const encrypted = await res.arrayBuffer();
+          const encrypted = await res.blob();
           const key = await importKey(item.key);
-          const dec = await decryptPayload(key, encrypted);
+          const dec = await decryptToBlob(key, encrypted);
           if (!cancelRef.current) {
-            const blob = new Blob([dec.content], { type: dec.mimeType });
-            const text = new TextDecoder().decode(dec.content);
-            setEntries([{ ...item, dlStatus: "idle", _blob: blob, _text: text }]);
+            const text = await dec.content.text();
+            setEntries([{ ...item, dlStatus: "idle", _blob: dec.content, _text: text }]);
           }
         }
       } catch { /* preview is best-effort */ }
@@ -144,28 +143,27 @@ export function DownloadPage() {
                   : `Server error (${res.status}).`,
             );
           }
-          const encrypted = await res.arrayBuffer();
+          const encrypted = await res.blob();
           if (cancelled) return;
           setPageStatus("decrypting");
 
           const key = await importKey(rawHash);
-          const dec = await decryptPayload(key, encrypted);
+          const dec = await decryptToBlob(key, encrypted);
           if (cancelled) return;
 
-          const blob = new Blob([dec.content], { type: dec.mimeType });
           const text = dec.mimeType.startsWith("text/")
-            ? new TextDecoder().decode(dec.content)
+            ? await dec.content.text()
             : undefined;
 
           setEntries([{
             id,
             key: rawHash,
             name: dec.filename,
-            size: dec.content.byteLength,
+            size: dec.content.size,
             mime: dec.mimeType,
             expiresAt: "",
             dlStatus: "idle",
-            _blob: blob,
+            _blob: dec.content,
             _text: text,
           }]);
           setPageStatus("ready");
@@ -205,10 +203,10 @@ export function DownloadPage() {
     } else {
       const res = await fetch(`/api/files/${entry.id}`);
       if (!res.ok) throw new Error(`Server error (${res.status}).`);
-      const encrypted = await res.arrayBuffer();
+      const encrypted = await res.blob();
       const key = await importKey(entry.key);
-      const dec = await decryptPayload(key, encrypted);
-      triggerBlob(new Blob([dec.content], { type: dec.mimeType }), dec.filename);
+      const dec = await decryptToBlob(key, encrypted);
+      triggerBlob(dec.content, dec.filename);
     }
 
     setEntries((e) => e.map((x, i) => i === idx ? { ...x, dlStatus: "done" } : x));
